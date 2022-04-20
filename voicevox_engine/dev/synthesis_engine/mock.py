@@ -10,7 +10,6 @@ from voicevox_engine.full_context_label import Phoneme
 
 from ...model import AccentPhrase, AudioQuery
 from ...synthesis_engine import SynthesisEngineBase
-from ...synthesis_engine.synthesis_engine import to_flatten_moras
 
 
 def create_phoneme_list(accent_phrases: List[AccentPhrase]):
@@ -119,12 +118,12 @@ def create_phoneme_list(accent_phrases: List[AccentPhrase]):
             return self._accent
 
         def interrogative(self):
-            if self.is_interrogative == None:
+            if self.is_interrogative is None:
                 return None
             return 1 if self.is_interrogative else 0
 
         def has_pau(self):
-            if self._has_pau == None:
+            if self._has_pau is None:
                 return None
             return 0 if self._has_pau else 1
 
@@ -247,25 +246,25 @@ def create_phoneme_list(accent_phrases: List[AccentPhrase]):
         def e1(self):
             shift = -1 if self._phoneme != "pau" else 0
             f_ap = self._ap.accent_phrase(shift)
-            if f_ap == None:
+            if f_ap is None:
                 return "xx"
             return str(f_ap.mora_len())
 
         def e2(self):
             shift = -1 if self._phoneme != "pau" else 0
             f_ap = self._ap.accent_phrase(shift)
-            if f_ap == None:
+            if f_ap is None:
                 return "xx"
             ac = f_ap.accent()
-            return str(ac) if ac != None else "xx"
+            return str(ac) if ac is not None else "xx"
 
         def e3(self):
             shift = -1 if self._phoneme != "pau" else 0
             f_ap = self._ap.accent_phrase(shift)
-            if f_ap == None:
+            if f_ap is None:
                 return "xx"
             ac = f_ap.interrogative()
-            return str(ac) if ac != None else "xx"
+            return str(ac) if ac is not None else "xx"
 
         def e4(self):
             return "xx"
@@ -274,10 +273,10 @@ def create_phoneme_list(accent_phrases: List[AccentPhrase]):
             if self._phoneme == "sil" or self._phoneme == "pau":
                 return "xx"
             f_ap = self._ap.accent_phrase(-1)
-            if f_ap == None:
+            if f_ap is None:
                 return "xx"
             pau = f_ap.has_pau()
-            return str(pau) if pau != None else "xx"
+            return str(pau) if pau is not None else "xx"
 
         def f1(self):
             if self._phoneme == "sil" or self._phoneme == "pau":
@@ -319,23 +318,23 @@ def create_phoneme_list(accent_phrases: List[AccentPhrase]):
 
         def g1(self):
             f_ap = self._ap.accent_phrase(1)
-            if f_ap == None:
+            if f_ap is None:
                 return "xx"
             return str(f_ap.mora_len())
 
         def g2(self):
             f_ap = self._ap.accent_phrase(1)
-            if f_ap == None:
+            if f_ap is None:
                 return "xx"
             ac = f_ap.accent()
-            return str(ac) if ac != None else "xx"
+            return str(ac) if ac is not None else "xx"
 
         def g3(self):
             f_ap = self._ap.accent_phrase(1)
-            if f_ap == None:
+            if f_ap is None:
                 return "xx"
             ac = f_ap.interrogative()
-            return str(ac) if ac != None else "xx"
+            return str(ac) if ac is not None else "xx"
 
         def g4(self):
             return "xx"
@@ -344,24 +343,24 @@ def create_phoneme_list(accent_phrases: List[AccentPhrase]):
             if self._phoneme == "sil" or self._phoneme == "pau":
                 return "xx"
             if (
-                self._ap == None
+                self._ap is None
                 or len(self._context.accent_phrases)
                 <= self._context.accent_phrases.index(self._ap) + 2
             ):
                 return "xx"
             pau = self._ap.has_pau()
-            return str(pau) if pau != None else "xx"
+            return str(pau) if pau is not None else "xx"
 
         def h1(self):
             labels = self._context.labels
             last_index = len(labels) - 1
             if last_index == labels.index(self):
                 return str(self._context.breath_groups[-1].accent_len())
-            if self._ap == None or self._ap._bg == None:
+            if self._ap is None or self._ap._bg is None:
                 return "xx"
             shift = -1 if self._phoneme != "pau" else 0
             back_bg = self._ap._bg.breath_group(shift)
-            if back_bg == None:
+            if back_bg is None:
                 return "xx"
             return str(back_bg.accent_len())
 
@@ -370,11 +369,11 @@ def create_phoneme_list(accent_phrases: List[AccentPhrase]):
             last_index = len(labels) - 1
             if last_index == labels.index(self):
                 return str(self._context.breath_groups[-1].mora_len())
-            if self._ap == None or self._ap._bg == None:
+            if self._ap is None or self._ap._bg is None:
                 return "xx"
             shift = -1 if self._phoneme != "pau" else 0
             back_bg = self._ap._bg.breath_group(shift)
-            if back_bg == None:
+            if back_bg is None:
                 return "xx"
             return str(back_bg.mora_len())
 
@@ -421,20 +420,20 @@ def create_phoneme_list(accent_phrases: List[AccentPhrase]):
         def j1(self):
             if self._context.labels.index(self) == 0:
                 return str(self._context.labels[1]._ap._bg.accent_len())
-            if self._ap == None or self._ap._bg == None:
+            if self._ap is None or self._ap._bg is None:
                 return "xx"
             back_bg = self._ap._bg.breath_group(1)
-            if back_bg == None:
+            if back_bg is None:
                 return "xx"
             return str(back_bg.accent_len())
 
         def j2(self):
             if self._context.labels.index(self) == 0:
                 return str(self._context.labels[1]._ap._bg.mora_len())
-            if self._ap == None or self._ap._bg == None:
+            if self._ap is None or self._ap._bg is None:
                 return "xx"
             back_bg = self._ap._bg.breath_group(1)
-            if back_bg == None:
+            if back_bg is None:
                 return "xx"
             return str(back_bg.mora_len())
 
@@ -618,8 +617,8 @@ class MockSynthesisEngine(SynthesisEngineBase):
             音声波形データをNumPy配列で返します
         """
         # recall text in katakana
-        flatten_moras = to_flatten_moras(query.accent_phrases)
-        kana_text = "".join([mora.text for mora in flatten_moras])
+        # flatten_moras = to_flatten_moras(query.accent_phrases)
+        # kana_text = "".join([mora.text for mora in flatten_moras])
 
         # wave = self.forward(kana_text)
         wave, sr = pyopenjtalk.synthesize(
