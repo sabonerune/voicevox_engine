@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import pyopenjtalk
@@ -10,6 +10,120 @@ from voicevox_engine.full_context_label import Phoneme
 
 from ...model import AccentPhrase, AudioQuery
 from ...synthesis_engine import SynthesisEngineBase
+
+
+def accent_phrase_to_phonemes(accent_phrases: List[AccentPhrase]):
+    breath_groups: List[List[AccentPhrase]] = []
+    breath_group = []
+    for accent_phrase in accent_phrases:
+        if accent_phrase.pause_mora:
+            breath_group.append(accent_phrase)
+            breath_groups.append(breath_group)
+            breath_group = []
+            continue
+        breath_group.append(accent_phrase)
+    if breath_group:
+        breath_groups.append(breath_group)
+    _accent_phrases = [
+        (accent_phrase, i)
+        for i, breath_group in enumerate(breath_groups)
+        for accent_phrase in breath_group
+    ]
+    moras = [
+        (mora, i)
+        for i, accent_phrase_t in enumerate(_accent_phrases)
+        for mora in accent_phrase_t[0].moras
+    ]
+    phonemes: List[Tuple[str, int]] = []
+    for i, mora_t in enumerate(moras):
+        mora = mora_t[0]
+        if mora.consonant is not None:
+            phonemes.append((mora.consonant, i))
+        phonemes.append((mora.vowel, i))
+    constant_contexts = {
+        "b1": "xx",
+        "b2": "xx",
+        "b3": "xx",
+        "c1": "xx",
+        "c2": "xx",
+        "c3": "xx",
+        "d1": "xx",
+        "d2": "xx",
+        "d3": "xx",
+        "e4": "xx",
+        "f4": "xx",
+        "g4": "xx",
+    }
+    utterance_contexts = {
+        "k1": f"{max(len(breath_groups),19)}",
+        "k2": f"{max(len(_accent_phrases),19)}",
+        "k3": f"{max(len(moras),19)}",
+    }
+    last_label_index = len(phonemes) + 1
+    label: List[Phoneme] = []
+    for i in range(-1, last_label_index):
+        contexts = dict(constant_contexts, **utterance_contexts)
+        phoneme_object = Phoneme(contexts)
+        if i == -1 or i == last_label_index:
+            contexts.update(
+                {
+                    "p3": "sil",
+                    "a1": "xx",
+                    "a2": "xx",
+                    "a3": "xx",
+                    "f1": "xx",
+                    "f2": "xx",
+                    "f3": "xx",
+                    "f5": "xx",
+                    "f6": "xx",
+                    "f7": "xx",
+                    "f8": "xx",
+                    "i1": "xx",
+                    "i2": "xx",
+                    "i3": "xx",
+                    "i4": "xx",
+                    "i5": "xx",
+                    "i6": "xx",
+                    "i7": "xx",
+                    "i8": "xx",
+                }
+            )
+        else:
+            current_mora_index = phonemes[i][1]
+            current_accent_phrase_index = moras[current_mora_index][1]
+            current_breath_group_index = _accent_phrases[current_accent_phrase_index][1]
+            accentphrase_indexs_in_current_breath_group = [
+                i
+                for i, ap in enumerate(_accent_phrases)
+                if ap[1] == current_breath_group_index
+            ]
+            accentphrase_indexs_in_start_to_prev_breath_group = [api for i in range(0, current_breath_group_index) for api, ap in enumerate(_accent_phrases) if ap[1] == i]
+            accentphrase_indexs_in_next_to_end_breath_group = [api for i in range(current_breath_group_index, len(breath_groups)) for api, ap in enumerate(_accent_phrases) if ap[1] == i]
+            contexts.update(
+                {
+                    "p3": f"{phonemes[i][0]}",
+                    "a1": "xx",
+                    "a2": "xx",
+                    "a3": "xx",
+                    "f1": f"{max([],49)}",
+                    "f2": f"{max([],49)}",
+                    "f3": f"{0 if _accent_phrases[current_accent_phrase_index][0].is_interrogative else 1}",
+                    "f5": f"{max([],49)}",
+                    "f6": f"{max([],49)}",
+                    "f7": f"{max([],99)}",
+                    "f8": f"{max([],99)}",
+                    "i1": f"{min(len(accentphrase_indexs_in_current_breath_group), 49)}",
+                    "i2": f"{min(len([mora for mora in moras if mora[1] in accentphrase_indexs_in_current_breath_group]), 99)}",
+                    "i3": f"{min(current_breath_group_index + 1, 19)}",
+                    "i4": f"{min(len(breath_groups) - current_breath_group_index, 19)}",
+                    "i5": f"{min(len([i for bg in breath_groups[:current_breath_group_index] for i in bg]) + 1, 49)}",
+                    "i6": f"{min(len([i for bg in breath_groups[current_breath_group_index:] for i in bg]), 49)}",
+                    "i7": f"{min(len([mora for mora in moras if mora[1] in accentphrase_indexs_in_start_to_prev_breath_group]) + 1, 199)}",
+                    "i8": f"{min(len([mora for mora in moras if mora[1] in accentphrase_indexs_in_next_to_end_breath_group]) + 1, 199)}",
+                }
+            )
+            i
+        i
 
 
 def create_phoneme_list(accent_phrases: List[AccentPhrase]):
