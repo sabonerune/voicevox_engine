@@ -101,10 +101,10 @@ def accent_phrase_to_phonemes(accent_phrases: List[AccentPhrase]):
                 for i, ap in enumerate(_accent_phrases)
                 if ap[1] == current_breath_group_index
             ]
-            mora_indexs_in_current_breath_group = [
+            accentphrase_indexs_in_current_breath_group_by_mora = [
                 i
-                for i, mo in enumerate(moras)
-                if _accent_phrases[mo[1]][1] == current_breath_group_index
+                for (_, i) in moras
+                if _accent_phrases[i][1] == current_breath_group_index
             ]
             accentphrase_indexs_in_start_to_prev_breath_group = [
                 api
@@ -129,8 +129,8 @@ def accent_phrase_to_phonemes(accent_phrases: List[AccentPhrase]):
                     "f3": f"{1 if _accent_phrases[current_accent_phrase_index][0].is_interrogative else 0}",
                     "f5": f"{min(accentphrase_indexs_in_current_breath_group.index(current_accent_phrase_index) + 1, 49)}",
                     "f6": f"{min(len(accentphrase_indexs_in_current_breath_group) - accentphrase_indexs_in_current_breath_group.index(current_accent_phrase_index), 49)}",
-                    "f7": f"{min(mora_indexs_in_current_breath_group.index(current_mora_index) + 1, 99)}",
-                    "f8": f"{min(len(mora_indexs_in_current_breath_group) - mora_indexs_in_current_breath_group.index(current_mora_index), 99)}",
+                    "f7": f"{min(accentphrase_indexs_in_current_breath_group_by_mora.index(current_accent_phrase_index) + 1, 99)}",
+                    "f8": f"{min(len(accentphrase_indexs_in_current_breath_group_by_mora) - accentphrase_indexs_in_current_breath_group_by_mora.index(current_accent_phrase_index), 99)}",
                     "i1": f"{min(len(accentphrase_indexs_in_current_breath_group), 49)}",
                     "i2": f"{min(len([mora for mora in moras if mora[1] in accentphrase_indexs_in_current_breath_group]), 99)}",
                     "i3": f"{min(current_breath_group_index + 1, 19)}",
