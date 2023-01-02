@@ -126,8 +126,8 @@ def accent_phrase_to_phonemes(accent_phrases: List[AccentPhrase]):
                 {
                     "p3": f"{phonemes[i][0]}",
                     "a1": f"{difference_between_accent_position_current_mora}", # -49 =< a1 =< 49
-                    "a2": "xx",
-                    "a3": "xx",
+                    "a2": f"{min(mora_indexs_in_current_accent_phrase.index(current_mora_index)+1, 49)}",
+                    "a3": f"{min(len(mora_indexs_in_current_accent_phrase) - mora_indexs_in_current_accent_phrase.index(current_mora_index), 49)}",
                     "f1": f"{min(len(_accent_phrases[current_accent_phrase_index][0].moras), 49)}",
                     "f2": f"{min(accent, 49)}",
                     "f3": f"{1 if _accent_phrases[current_accent_phrase_index][0].is_interrogative else 0}",
