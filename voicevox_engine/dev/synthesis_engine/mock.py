@@ -67,7 +67,7 @@ def accent_phrase_to_phonemes(accent_phrases: List[AccentPhrase]):
     for i in range(-1, last_label_index):
         contexts = dict(constant_contexts, **utterance_contexts)
         phoneme_object = Phoneme(contexts)
-        if i == -1 or i == last_label_index or phonemes[i][1] == "pau":
+        if i == -1 or i == last_label_index or phonemes[i][0] == "pau":
             p3 = "sil" if i == -1 or i == last_label_index else "pau"
             contexts.update(
                 {
