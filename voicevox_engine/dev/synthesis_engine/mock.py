@@ -119,7 +119,7 @@ def accent_phrase_to_phonemes(accent_phrases: List[AccentPhrase]):
                     "f2": f"{min(_accent_phrases[current_accent_phrase_index][0].accent, 49)}",
                     "f3": f"{0 if _accent_phrases[current_accent_phrase_index][0].is_interrogative else 1}",
                     "f5": f"{min(accentphrase_indexs_in_current_breath_group.index(current_accent_phrase_index) + 1, 49)}",
-                    "f6": f"{min(0, 49)}",
+                    "f6": f"{min(len(accentphrase_indexs_in_current_breath_group) - accentphrase_indexs_in_current_breath_group.index(current_accent_phrase_index), 49)}",
                     "f7": f"{min(0, 99)}",
                     "f8": f"{min(0, 99)}",
                     "i1": f"{min(len(accentphrase_indexs_in_current_breath_group), 49)}",
