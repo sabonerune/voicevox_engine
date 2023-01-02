@@ -59,7 +59,7 @@ def accent_phrase_to_phonemes(accent_phrases: List[AccentPhrase]):
         "k2": f"{max(len(_accent_phrases),19)}",
         "k3": f"{max(len(moras),19)}",
     }
-    last_label_index = len(phonemes) + 1
+    last_label_index = len(phonemes)
     label: List[Phoneme] = []
     for i in range(-1, last_label_index):
         contexts = dict(constant_contexts, **utterance_contexts)
@@ -109,7 +109,6 @@ def accent_phrase_to_phonemes(accent_phrases: List[AccentPhrase]):
                 for api, ap in enumerate(_accent_phrases)
                 if ap[1] == i
             ]
-            aa = accentphrase_indexs_in_current_breath_group[current_breath_group_index]
             contexts.update(
                 {
                     "p3": f"{phonemes[i][0]}",
@@ -119,7 +118,7 @@ def accent_phrase_to_phonemes(accent_phrases: List[AccentPhrase]):
                     "f1": f"{min(len(_accent_phrases[current_accent_phrase_index][0].moras), 49)}",
                     "f2": f"{min(_accent_phrases[current_accent_phrase_index][0].accent, 49)}",
                     "f3": f"{0 if _accent_phrases[current_accent_phrase_index][0].is_interrogative else 1}",
-                    "f5": f"{min(accentphrase_indexs_in_current_breath_group[current_breath_group_index] + 1, 49)}",
+                    "f5": f"{min(accentphrase_indexs_in_current_breath_group.index(current_accent_phrase_index) + 1, 49)}",
                     "f6": f"{min(0, 49)}",
                     "f7": f"{min(0, 99)}",
                     "f8": f"{min(0, 99)}",
