@@ -40,6 +40,9 @@ def accent_phrase_to_phonemes(accent_phrases: List[AccentPhrase]):
         if mora.consonant is not None:
             phonemes.append((mora.consonant, i))
         phonemes.append((mora.vowel, i))
+        current_accent_phrase = _accent_phrases[mora_t[1]][0]
+        if current_accent_phrase.pause_mora and current_accent_phrase.moras[-1] == mora:
+            phonemes.append((current_accent_phrase.pause_mora.vowel, i))
     constant_contexts = {
         "b1": "xx",
         "b2": "xx",
@@ -55,19 +58,20 @@ def accent_phrase_to_phonemes(accent_phrases: List[AccentPhrase]):
         "g4": "xx",
     }
     utterance_contexts = {
-        "k1": f"{max(len(breath_groups),19)}",
-        "k2": f"{max(len(_accent_phrases),19)}",
-        "k3": f"{max(len(moras),19)}",
+        "k1": f"{min(len(breath_groups),19)}",
+        "k2": f"{min(len(_accent_phrases),49)}",
+        "k3": f"{min(len(moras),199)}",
     }
-    last_label_index = len(phonemes)
+    last_label_index = len(phonemes) + 1
     label: List[Phoneme] = []
     for i in range(-1, last_label_index):
         contexts = dict(constant_contexts, **utterance_contexts)
         phoneme_object = Phoneme(contexts)
-        if i == -1 or i == last_label_index:
+        if i == -1 or i == last_label_index or phonemes[i][1] == "pau":
+            p3 = "sil" if i == -1 or i == last_label_index else "pau"
             contexts.update(
                 {
-                    "p3": "sil",
+                    "p3": p3,
                     "a1": "xx",
                     "a2": "xx",
                     "a3": "xx",
