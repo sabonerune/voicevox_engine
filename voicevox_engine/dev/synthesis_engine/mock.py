@@ -64,7 +64,7 @@ def accent_phrase_to_phonemes(accent_phrases: List[AccentPhrase]):
     }
     last_label_index = len(phonemes)
     label: List[Phoneme] = []
-    for i in range(-1, last_label_index):
+    for i in range(-1, last_label_index + 1):
         contexts = dict(constant_contexts, **utterance_contexts)
         phoneme_object = Phoneme(contexts)
         if i == -1 or i == last_label_index or phonemes[i][0] == "pau":
@@ -138,7 +138,7 @@ def accent_phrase_to_phonemes(accent_phrases: List[AccentPhrase]):
                     "i5": f"{min(len([i for bg in breath_groups[:current_breath_group_index] for i in bg]) + 1, 49)}",
                     "i6": f"{min(len([i for bg in breath_groups[current_breath_group_index:] for i in bg]), 49)}",
                     "i7": f"{min(len([mora for mora in moras if mora[1] in accentphrase_indexs_in_start_to_prev_breath_group]) + 1, 199)}",
-                    "i8": f"{min(len([mora for mora in moras if mora[1] in accentphrase_indexs_in_next_to_end_breath_group]) + 1, 199)}",
+                    "i8": f"{min(len([mora for mora in moras if mora[1] in accentphrase_indexs_in_next_to_end_breath_group]), 199)}",
                 }
             )
         label.append(phoneme_object)
