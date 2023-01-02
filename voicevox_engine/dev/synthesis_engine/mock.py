@@ -96,6 +96,10 @@ def accent_phrase_to_phonemes(accent_phrases: List[AccentPhrase]):
             current_mora_index = phonemes[i][1]
             current_accent_phrase_index = moras[current_mora_index][1]
             current_breath_group_index = _accent_phrases[current_accent_phrase_index][1]
+            accent = _accent_phrases[current_accent_phrase_index][0].accent
+            mora_indexs_in_current_accent_phrase = [i for i, mora in enumerate(moras) if mora[1] == current_accent_phrase_index]
+            difference_between_accent_position_current_mora = mora_indexs_in_current_accent_phrase.index(current_mora_index) - accent + 1
+            difference_between_accent_position_current_mora = max(min(difference_between_accent_position_current_mora, 49), -49)
             accentphrase_indexs_in_current_breath_group = [
                 i
                 for i, ap in enumerate(_accent_phrases)
@@ -121,11 +125,11 @@ def accent_phrase_to_phonemes(accent_phrases: List[AccentPhrase]):
             contexts.update(
                 {
                     "p3": f"{phonemes[i][0]}",
-                    "a1": "xx",
+                    "a1": f"{difference_between_accent_position_current_mora}", # -49 =< a1 =< 49
                     "a2": "xx",
                     "a3": "xx",
                     "f1": f"{min(len(_accent_phrases[current_accent_phrase_index][0].moras), 49)}",
-                    "f2": f"{min(_accent_phrases[current_accent_phrase_index][0].accent, 49)}",
+                    "f2": f"{min(accent, 49)}",
                     "f3": f"{1 if _accent_phrases[current_accent_phrase_index][0].is_interrogative else 0}",
                     "f5": f"{min(accentphrase_indexs_in_current_breath_group.index(current_accent_phrase_index) + 1, 49)}",
                     "f6": f"{min(len(accentphrase_indexs_in_current_breath_group) - accentphrase_indexs_in_current_breath_group.index(current_accent_phrase_index), 49)}",
