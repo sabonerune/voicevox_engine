@@ -44,6 +44,10 @@ def accent_phrase_to_phonemes(accent_phrases: List[AccentPhrase]):
         if current_accent_phrase.pause_mora and current_accent_phrase.moras[-1] == mora:
             phonemes.append((current_accent_phrase.pause_mora.vowel, i))
     constant_contexts = {
+        "p1": "xx",
+        "p2": "xx",
+        "p4": "xx",
+        "p5": "xx",
         "b1": "xx",
         "b2": "xx",
         "b3": "xx",
@@ -153,6 +157,22 @@ def accent_phrase_to_phonemes(accent_phrases: List[AccentPhrase]):
                 }
             )
         label.append(phoneme_object)
+    for i, phoneme in enumerate(label):
+        contexts = phoneme.contexts
+        previous_index = i - 1
+        if 0 <= previous_index:
+            previous_contexts = label[previous_index].contexts
+            contexts["p2"] = previous_contexts["p3"]
+            before_previous_index = i - 2
+            if 0 <= before_previous_index:
+                contexts["p1"] = label[before_previous_index].contexts["p3"]
+        next_index = i + 1
+        if next_index < len(label):
+            next_contexts = label[next_index].contexts
+            contexts["p4"] = next_contexts["p3"]
+            after_next_index = i + 2
+            if after_next_index < len(label):
+                contexts["p5"] = label[after_next_index].contexts["p3"]
     return label
 
 

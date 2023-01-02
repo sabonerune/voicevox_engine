@@ -44,7 +44,11 @@ class Test_gen(TestCase):
             Phoneme.from_label(i) for i in pyopenjtalk.extract_fullcontext(test_text)
         ]
         for (i, _) in enumerate(base_label):
+            self.assertEqual(regen[i].contexts["p1"], base_label[i].contexts["p1"])
+            self.assertEqual(regen[i].contexts["p2"], base_label[i].contexts["p2"])
             self.assertEqual(regen[i].contexts["p3"], base_label[i].contexts["p3"])
+            self.assertEqual(regen[i].contexts["p4"], base_label[i].contexts["p4"])
+            self.assertEqual(regen[i].contexts["p5"], base_label[i].contexts["p5"])
             self.assertEqual(regen[i].contexts["a1"], base_label[i].contexts["a1"])
             self.assertEqual(regen[i].contexts["a2"], base_label[i].contexts["a2"])
             self.assertEqual(regen[i].contexts["a3"], base_label[i].contexts["a3"])
