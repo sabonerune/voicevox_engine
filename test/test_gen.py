@@ -1,6 +1,10 @@
+from typing import List
 from unittest import TestCase
 
+import pyopenjtalk
+
 from voicevox_engine.dev.synthesis_engine import mock
+from voicevox_engine.full_context_label import Phoneme
 from voicevox_engine.model import AccentPhrase, Mora
 from voicevox_engine.synthesis_engine import synthesis_engine_base
 
@@ -36,3 +40,30 @@ class Test_gen(TestCase):
             for i_accent_phrase, accent_phrase in enumerate(breath_group.accent_phrases)
         ]
         regen = mock.accent_phrase_to_phonemes(accent_phrases)
+        base_label = [
+            Phoneme.from_label(i) for i in pyopenjtalk.extract_fullcontext(test_text)
+        ]
+        for (i, _) in enumerate(base_label):
+            self.assertEqual(regen[i].contexts["p3"], base_label[i].contexts["p3"])
+            self.assertEqual(regen[i].contexts["a1"], base_label[i].contexts["a1"])
+            self.assertEqual(regen[i].contexts["a2"], base_label[i].contexts["a2"])
+            self.assertEqual(regen[i].contexts["a3"], base_label[i].contexts["a3"])
+            self.assertEqual(regen[i].contexts["f1"], base_label[i].contexts["f1"])
+            self.assertEqual(regen[i].contexts["f2"], base_label[i].contexts["f2"])
+            self.assertEqual(regen[i].contexts["f3"], base_label[i].contexts["f3"])
+            self.assertEqual(regen[i].contexts["f4"], base_label[i].contexts["f4"])
+            self.assertEqual(regen[i].contexts["f5"], base_label[i].contexts["f5"])
+            self.assertEqual(regen[i].contexts["f6"], base_label[i].contexts["f6"])
+            self.assertEqual(regen[i].contexts["f7"], base_label[i].contexts["f7"])
+            self.assertEqual(regen[i].contexts["f8"], base_label[i].contexts["f8"])
+            self.assertEqual(regen[i].contexts["i1"], base_label[i].contexts["i1"])
+            self.assertEqual(regen[i].contexts["i2"], base_label[i].contexts["i2"])
+            self.assertEqual(regen[i].contexts["i3"], base_label[i].contexts["i3"])
+            self.assertEqual(regen[i].contexts["i4"], base_label[i].contexts["i4"])
+            self.assertEqual(regen[i].contexts["i5"], base_label[i].contexts["i5"])
+            self.assertEqual(regen[i].contexts["i6"], base_label[i].contexts["i6"])
+            self.assertEqual(regen[i].contexts["i7"], base_label[i].contexts["i7"])
+            self.assertEqual(regen[i].contexts["i8"], base_label[i].contexts["i8"])
+            self.assertEqual(regen[i].contexts["k1"], base_label[i].contexts["k1"])
+            self.assertEqual(regen[i].contexts["k2"], base_label[i].contexts["k2"])
+            self.assertEqual(regen[i].contexts["k3"], base_label[i].contexts["k3"])
