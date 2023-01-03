@@ -502,7 +502,7 @@ class HtsEngineApiEngine(SynthesisEngineBase):
         """
 
         phonemes = accent_phrase_to_phonemes(query.accent_phrases)
-        wave, sr = synthesize([i.label for i in phonemes], query.speedScale)
+        wave, sr = synthesize([i.label for i in phonemes], query.speedScale, query.pitchScale * 100)
 
         # volume
         wave *= query.volumeScale
