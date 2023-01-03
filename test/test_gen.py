@@ -1,4 +1,3 @@
-from typing import List
 from unittest import TestCase
 
 import pyopenjtalk
