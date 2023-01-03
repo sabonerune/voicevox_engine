@@ -59,8 +59,24 @@ def accent_phrase_to_phonemes(accent_phrases: List[AccentPhrase]):
         current_ap_indexs_in_current_breath_group_by_mora = (
             ap_indexs_in_current_breath_group_by_mora.index(ap_index)
         )
+        prev_accent_phrase_index = index if (index := ap_index - 1) >= 0 else None
+        if prev_accent_phrase_index is not None:
+            prev_mora_len = min(len(_accent_phrases[prev_accent_phrase_index][0].moras), 49)
+            prev_accent = min(_accent_phrases[prev_accent_phrase_index][0].accent, 49)
+            prev_interrogative = 1 if _accent_phrases[prev_accent_phrase_index][0].is_interrogative else 0
+            prev_pause = 0 if _accent_phrases[prev_accent_phrase_index][0].pause_mora is not None else 1
+        next_accent_phrase_index = index if (index := ap_index + 1 ) < len(_accent_phrases) else None
+        if next_accent_phrase_index is not None:
+            next_mora_len = min(len(_accent_phrases[next_accent_phrase_index][0].moras), 49)
+            next_accent = min(_accent_phrases[next_accent_phrase_index][0].accent, 49)
+            next_interrogative = 1 if _accent_phrases[next_accent_phrase_index][0].is_interrogative else 0
+            next_pause = 0 if accent_phrase.pause_mora is not None else 1
         contexts_ap.append(
             {
+                "e1": "xx" if prev_accent_phrase_index is None else str(prev_mora_len),
+                "e2": "xx" if prev_accent_phrase_index is None else str(prev_accent),
+                "e3": "xx" if prev_accent_phrase_index is None else str(prev_interrogative),
+                "e5": "xx" if prev_accent_phrase_index is None else str(prev_pause),
                 "f1": str(min(len(accent_phrase.moras), 49)),
                 "f2": str(min(accent_phrase.accent, 49)),
                 "f3": str(1 if accent_phrase.is_interrogative else 0),
@@ -82,6 +98,10 @@ def accent_phrase_to_phonemes(accent_phrases: List[AccentPhrase]):
                         99,
                     )
                 ),
+                "g1":  "xx" if next_accent_phrase_index is None else str(next_mora_len),
+                "g2":  "xx" if next_accent_phrase_index is None else str(next_accent),
+                "g3":  "xx" if next_accent_phrase_index is None else str(next_interrogative),
+                "g5":  "xx" if next_accent_phrase_index is None else str(next_pause),
             }
         )
     contexts_bg = []
