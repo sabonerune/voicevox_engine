@@ -43,6 +43,33 @@ def accent_phrase_to_phonemes(accent_phrases: List[AccentPhrase]):
         current_accent_phrase = _accent_phrases[mora_t[1]][0]
         if current_accent_phrase.pause_mora and current_accent_phrase.moras[-1] == mora:
             phonemes.append((current_accent_phrase.pause_mora.vowel, i))
+    contexts_ap = []
+    for ap_index, (accent_phrase, current_bg_index) in enumerate(_accent_phrases):
+        ap_indexs_in_current_breath_group = [
+            j
+            for j, accent_phrase in enumerate(_accent_phrases)
+            if accent_phrase[1] == current_bg_index
+        ]
+        current_ap_index_in_currentbreath_group = (
+            ap_indexs_in_current_breath_group.index(ap_index)
+        )
+        ap_indexs_in_current_breath_group_by_mora = [
+            j for (_, j) in moras if _accent_phrases[j][1] == current_bg_index
+        ]
+        current_ap_indexs_in_current_breath_group_by_mora = (
+            ap_indexs_in_current_breath_group_by_mora.index(ap_index)
+        )
+        contexts_ap.append(
+            {
+                "f1": f"{min(len(accent_phrase.moras), 49)}",
+                "f2": f"{min(accent_phrase.accent, 49)}",
+                "f3": f"{1 if accent_phrase.is_interrogative else 0}",
+                "f5": f"{min(current_ap_index_in_currentbreath_group + 1, 49)}",
+                "f6": f"{min(len(ap_indexs_in_current_breath_group) - current_ap_index_in_currentbreath_group, 49)}",
+                "f7": f"{min(current_ap_indexs_in_current_breath_group_by_mora + 1,99)}",
+                "f8": f"{min(len(ap_indexs_in_current_breath_group_by_mora) - current_ap_indexs_in_current_breath_group_by_mora, 99)}",
+            }
+        )
     constant_contexts = {
         "p1": "xx",
         "p2": "xx",
@@ -116,11 +143,6 @@ def accent_phrase_to_phonemes(accent_phrases: List[AccentPhrase]):
                 for i, ap in enumerate(_accent_phrases)
                 if ap[1] == current_breath_group_index
             ]
-            accentphrase_indexs_in_current_breath_group_by_mora = [
-                i
-                for (_, i) in moras
-                if _accent_phrases[i][1] == current_breath_group_index
-            ]
             accentphrase_indexs_in_start_to_prev_breath_group = [
                 api
                 for i in range(0, current_breath_group_index)
@@ -139,13 +161,6 @@ def accent_phrase_to_phonemes(accent_phrases: List[AccentPhrase]):
                     "a1": f"{max(min(difference_between_accent_position_current_mora, 49), -49)}",
                     "a2": f"{min(mora_indexs_in_current_accent_phrase.index(current_mora_index)+1, 49)}",
                     "a3": f"{min(len(mora_indexs_in_current_accent_phrase) - mora_indexs_in_current_accent_phrase.index(current_mora_index), 49)}",
-                    "f1": f"{min(len(_accent_phrases[current_accent_phrase_index][0].moras), 49)}",
-                    "f2": f"{min(accent, 49)}",
-                    "f3": f"{1 if _accent_phrases[current_accent_phrase_index][0].is_interrogative else 0}",
-                    "f5": f"{min(accentphrase_indexs_in_current_breath_group.index(current_accent_phrase_index) + 1, 49)}",
-                    "f6": f"{min(len(accentphrase_indexs_in_current_breath_group) - accentphrase_indexs_in_current_breath_group.index(current_accent_phrase_index), 49)}",
-                    "f7": f"{min(accentphrase_indexs_in_current_breath_group_by_mora.index(current_accent_phrase_index) + 1, 99)}",
-                    "f8": f"{min(len(accentphrase_indexs_in_current_breath_group_by_mora) - accentphrase_indexs_in_current_breath_group_by_mora.index(current_accent_phrase_index), 99)}",
                     "i1": f"{min(len(accentphrase_indexs_in_current_breath_group), 49)}",
                     "i2": f"{min(len([mora for mora in moras if mora[1] in accentphrase_indexs_in_current_breath_group]), 99)}",
                     "i3": f"{min(current_breath_group_index + 1, 19)}",
@@ -154,6 +169,7 @@ def accent_phrase_to_phonemes(accent_phrases: List[AccentPhrase]):
                     "i6": f"{min(len([i for bg in breath_groups[current_breath_group_index:] for i in bg]), 49)}",
                     "i7": f"{min(len([mora for mora in moras if mora[1] in accentphrase_indexs_in_start_to_prev_breath_group]) + 1, 199)}",
                     "i8": f"{min(len([mora for mora in moras if mora[1] in accentphrase_indexs_in_next_to_end_breath_group]), 199)}",
+                    **contexts_ap[current_accent_phrase_index],
                 }
             )
         label.append(phoneme_object)
