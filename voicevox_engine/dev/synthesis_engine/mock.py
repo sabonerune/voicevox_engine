@@ -217,7 +217,27 @@ def accent_phrase_to_phonemes(accent_phrases: List[AccentPhrase]):
         contexts = dict(constant_contexts, **utterance_contexts)
         phoneme_object = Phoneme(contexts)
         if i == -1 or i == last_label_index or phonemes[i][0] == "pau":
-            p3 = "sil" if i == -1 or i == last_label_index else "pau"
+            if i == -1:
+                p3 = "sil"
+                h1 = "xx"
+                h2 = "xx"
+                next_bg_index = _accent_phrases[0][1]
+                j1 = contexts_bg[next_bg_index]["i1"]
+                j2 = contexts_bg[next_bg_index]["i2"]
+            elif i == last_label_index:
+                p3 = "sil"
+                prev_bg_index = _accent_phrases[-1][1]
+                h1 = contexts_bg[prev_bg_index]["i1"]
+                h2 = contexts_bg[prev_bg_index]["i2"]
+                j1 = "xx"
+                j2 = "xx"
+            else:
+                p3 = "pau"
+                prev_bg_index = _accent_phrases[moras[phonemes[i][1]][1]][1]
+                h1 = contexts_bg[prev_bg_index]["i1"]
+                h2 = contexts_bg[prev_bg_index]["i2"]
+                j1 = contexts_bg[prev_bg_index + 1]["i1"]
+                j2 = contexts_bg[prev_bg_index + 1]["i2"]
             contexts.update(
                 {
                     "p3": p3,
@@ -231,8 +251,8 @@ def accent_phrase_to_phonemes(accent_phrases: List[AccentPhrase]):
                     "f6": "xx",
                     "f7": "xx",
                     "f8": "xx",
-                    "h1": "xx",
-                    "h2": "xx",
+                    "h1": f"{h1}",
+                    "h2": f"{h2}",
                     "i1": "xx",
                     "i2": "xx",
                     "i3": "xx",
@@ -241,8 +261,8 @@ def accent_phrase_to_phonemes(accent_phrases: List[AccentPhrase]):
                     "i6": "xx",
                     "i7": "xx",
                     "i8": "xx",
-                    "j1": "xx",
-                    "j2": "xx",
+                    "j1": f"{j1}",
+                    "j2": f"{j2}",
                 }
             )
         else:
