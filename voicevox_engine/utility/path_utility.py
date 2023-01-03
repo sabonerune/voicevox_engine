@@ -39,7 +39,7 @@ def get_save_dir():
         app_name = "openjvox"
     else:
         app_name = "openjvox-dev"
-    return Path(user_data_dir(app_name, "") ) / "engine"
+    return Path(user_data_dir(app_name, "")) / "engine"
 
 
 def delete_file(file_path: str) -> None:

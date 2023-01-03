@@ -1,0 +1,14 @@
+{
+  "htsvoice": "mei_angry.htsvoice",
+  "icon": "mei_angry.png",
+  "samples": [
+    "dummy_1.wav",
+    "dummy_2.wav",
+    "dummy_3.wav"
+  ],
+  "config": {
+    "half_tone_multiplier": "1",
+    "speed_multiplier": "1",
+    "volume_multiplier": "1"
+  }
+}

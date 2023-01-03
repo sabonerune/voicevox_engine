@@ -6,6 +6,7 @@ from scipy.signal import resample
 
 from voicevox_engine.full_context_label import Phoneme
 from voicevox_engine.model import AccentPhrase, AudioQuery
+
 from .synthesis_engine import SynthesisEngineBase
 
 
@@ -502,7 +503,9 @@ class HtsEngineApiEngine(SynthesisEngineBase):
         """
 
         phonemes = accent_phrase_to_phonemes(query.accent_phrases)
-        wave, sr = synthesize([i.label for i in phonemes], query.speedScale, query.pitchScale * 100)
+        wave, sr = synthesize(
+            [i.label for i in phonemes], query.speedScale, query.pitchScale * 100
+        )
 
         # volume
         wave *= query.volumeScale
