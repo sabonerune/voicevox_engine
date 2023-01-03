@@ -35,13 +35,11 @@ def is_development() -> bool:
 
 def get_save_dir():
     # FIXME: ファイル保存場所をエンジン固有のIDが入ったものにする
-    # FIXME: Windowsは`voicevox-engine/voicevox-engine`ディレクトリに保存されているので
-    # `VOICEVOX/voicevox-engine`に変更する
     if is_development():
-        app_name = "voicevox-engine-dev"
+        app_name = "fixme-tempname-dev"
     else:
-        app_name = "voicevox-engine"
-    return Path(user_data_dir(app_name))
+        app_name = "fixme-tempname"
+    return Path(user_data_dir(app_name, "") ) / "engine"
 
 
 def delete_file(file_path: str) -> None:
