@@ -85,7 +85,7 @@ def accent_phrase_to_phonemes(accent_phrases: List[AccentPhrase]):
             }
         )
     contexts_bg = []
-    for current_breath_group_index, current_accent_phrases in enumerate(breath_groups):
+    for current_breath_group_index, _ in enumerate(breath_groups):
         ap_indexs_in_current_breath_group = [
             i
             for i, (_, breath_group_index) in enumerate(_accent_phrases)
@@ -103,8 +103,30 @@ def accent_phrase_to_phonemes(accent_phrases: List[AccentPhrase]):
             for ap_index, (_, bg_index) in enumerate(_accent_phrases)
             if bg_index == i
         ]
+        prev_breath_group_index = current_breath_group_index - 1
+        use_prev_bg_index = prev_breath_group_index >= 0
+        if use_prev_bg_index:
+            prev_ap_len = len(breath_groups[prev_breath_group_index])
+            ap_indexs_in_prev_breath_group = [
+                i
+                for i, (_, breath_group_index) in enumerate(_accent_phrases)
+                if breath_group_index == prev_breath_group_index
+            ]
+            prev_mora_len = sum(accent_phrase_index in ap_indexs_in_prev_breath_group for _, accent_phrase_index in moras)
+        next_breath_group_index = current_breath_group_index + 1
+        use_next_bg_index = len(breath_groups) > next_breath_group_index
+        if use_next_bg_index:
+            next_ap_len = len(breath_groups[next_breath_group_index])
+            ap_indexs_in_next_breath_group = [
+                i
+                for i, (_, breath_group_index) in enumerate(_accent_phrases)
+                if breath_group_index == next_breath_group_index
+            ]
+            next_mora_len = sum(accent_phrase_index in ap_indexs_in_next_breath_group for _, accent_phrase_index in moras)
         contexts_bg.append(
             {
+                "h1": str(min(prev_ap_len, 49)) if use_prev_bg_index else "xx",
+                "h2": str(min(prev_mora_len, 99)) if use_prev_bg_index else "xx",
                 "i1": str(min(len(ap_indexs_in_current_breath_group), 49)),
                 "i2": str(
                     min(
@@ -162,6 +184,8 @@ def accent_phrase_to_phonemes(accent_phrases: List[AccentPhrase]):
                         199,
                     )
                 ),
+                "j1": str(min(next_ap_len, 49)) if use_next_bg_index else "xx",
+                "j2": str(min(next_mora_len, 99)) if use_next_bg_index else "xx",
             }
         )
     constant_contexts = {
@@ -207,6 +231,8 @@ def accent_phrase_to_phonemes(accent_phrases: List[AccentPhrase]):
                     "f6": "xx",
                     "f7": "xx",
                     "f8": "xx",
+                    "h1": "xx",
+                    "h2": "xx",
                     "i1": "xx",
                     "i2": "xx",
                     "i3": "xx",
@@ -215,6 +241,8 @@ def accent_phrase_to_phonemes(accent_phrases: List[AccentPhrase]):
                     "i6": "xx",
                     "i7": "xx",
                     "i8": "xx",
+                    "j1": "xx",
+                    "j2": "xx",
                 }
             )
         else:
