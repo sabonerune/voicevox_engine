@@ -43,44 +43,126 @@ class Test_gen(TestCase):
             Phoneme.from_label(i) for i in pyopenjtalk.extract_fullcontext(test_text)
         ]
         for (i, _) in enumerate(base_label):
-            self.assertEqual(regen[i].contexts["p1"], base_label[i].contexts["p1"],f"index={i}")
-            self.assertEqual(regen[i].contexts["p2"], base_label[i].contexts["p2"],f"index={i}")
-            self.assertEqual(regen[i].contexts["p3"], base_label[i].contexts["p3"],f"index={i}")
-            self.assertEqual(regen[i].contexts["p4"], base_label[i].contexts["p4"],f"index={i}")
-            self.assertEqual(regen[i].contexts["p5"], base_label[i].contexts["p5"],f"index={i}")
-            self.assertEqual(regen[i].contexts["a1"], base_label[i].contexts["a1"],f"index={i}")
-            self.assertEqual(regen[i].contexts["a2"], base_label[i].contexts["a2"],f"index={i}")
-            self.assertEqual(regen[i].contexts["a3"], base_label[i].contexts["a3"],f"index={i}")
-            self.assertEqual(regen[i].contexts["e1"], base_label[i].contexts["e1"], f"index={i}")
-            self.assertEqual(regen[i].contexts["e2"], base_label[i].contexts["e2"], f"index={i}")
-            self.assertEqual(regen[i].contexts["e3"], base_label[i].contexts["e3"], f"index={i}")
-            self.assertEqual(regen[i].contexts["e4"], base_label[i].contexts["e4"], f"index={i}")
-            self.assertEqual(regen[i].contexts["e5"], base_label[i].contexts["e5"], f"index={i}")
-            self.assertEqual(regen[i].contexts["f1"], base_label[i].contexts["f1"], f"index={i}")
-            self.assertEqual(regen[i].contexts["f2"], base_label[i].contexts["f2"], f"index={i}")
-            self.assertEqual(regen[i].contexts["f3"], base_label[i].contexts["f3"], f"index={i}")
-            self.assertEqual(regen[i].contexts["f4"], base_label[i].contexts["f4"], f"index={i}")
-            self.assertEqual(regen[i].contexts["f5"], base_label[i].contexts["f5"], f"index={i}")
-            self.assertEqual(regen[i].contexts["f6"], base_label[i].contexts["f6"], f"index={i}")
-            self.assertEqual(regen[i].contexts["f7"], base_label[i].contexts["f7"], f"index={i}")
-            self.assertEqual(regen[i].contexts["f8"], base_label[i].contexts["f8"], f"index={i}")
-            self.assertEqual(regen[i].contexts["g1"], base_label[i].contexts["g1"], f"index={i}")
-            self.assertEqual(regen[i].contexts["g2"], base_label[i].contexts["g2"], f"index={i}")
-            self.assertEqual(regen[i].contexts["g3"], base_label[i].contexts["g3"], f"index={i}")
-            self.assertEqual(regen[i].contexts["g4"], base_label[i].contexts["g4"], f"index={i}")
-            self.assertEqual(regen[i].contexts["g5"], base_label[i].contexts["g5"], f"index={i}")
-            self.assertEqual(regen[i].contexts["h1"], base_label[i].contexts["h1"], f"index={i}")
-            self.assertEqual(regen[i].contexts["h2"], base_label[i].contexts["h2"], f"index={i}")
-            self.assertEqual(regen[i].contexts["i1"], base_label[i].contexts["i1"], f"index={i}")
-            self.assertEqual(regen[i].contexts["i2"], base_label[i].contexts["i2"], f"index={i}")
-            self.assertEqual(regen[i].contexts["i3"], base_label[i].contexts["i3"], f"index={i}")
-            self.assertEqual(regen[i].contexts["i4"], base_label[i].contexts["i4"], f"index={i}")
-            self.assertEqual(regen[i].contexts["i5"], base_label[i].contexts["i5"], f"index={i}")
-            self.assertEqual(regen[i].contexts["i6"], base_label[i].contexts["i6"], f"index={i}")
-            self.assertEqual(regen[i].contexts["i7"], base_label[i].contexts["i7"], f"index={i}")
-            self.assertEqual(regen[i].contexts["i8"], base_label[i].contexts["i8"], f"index={i}")
-            self.assertEqual(regen[i].contexts["j1"], base_label[i].contexts["j1"], f"index={i}")
-            self.assertEqual(regen[i].contexts["j2"], base_label[i].contexts["j2"], f"index={i}")
-            self.assertEqual(regen[i].contexts["k1"], base_label[i].contexts["k1"], f"index={i}")
-            self.assertEqual(regen[i].contexts["k2"], base_label[i].contexts["k2"], f"index={i}")
-            self.assertEqual(regen[i].contexts["k3"], base_label[i].contexts["k3"], f"index={i}")
+            self.assertEqual(
+                regen[i].contexts["p1"], base_label[i].contexts["p1"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["p2"], base_label[i].contexts["p2"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["p3"], base_label[i].contexts["p3"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["p4"], base_label[i].contexts["p4"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["p5"], base_label[i].contexts["p5"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["a1"], base_label[i].contexts["a1"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["a2"], base_label[i].contexts["a2"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["a3"], base_label[i].contexts["a3"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["e1"], base_label[i].contexts["e1"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["e2"], base_label[i].contexts["e2"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["e3"], base_label[i].contexts["e3"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["e4"], base_label[i].contexts["e4"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["e5"], base_label[i].contexts["e5"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["f1"], base_label[i].contexts["f1"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["f2"], base_label[i].contexts["f2"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["f3"], base_label[i].contexts["f3"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["f4"], base_label[i].contexts["f4"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["f5"], base_label[i].contexts["f5"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["f6"], base_label[i].contexts["f6"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["f7"], base_label[i].contexts["f7"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["f8"], base_label[i].contexts["f8"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["g1"], base_label[i].contexts["g1"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["g2"], base_label[i].contexts["g2"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["g3"], base_label[i].contexts["g3"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["g4"], base_label[i].contexts["g4"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["g5"], base_label[i].contexts["g5"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["h1"], base_label[i].contexts["h1"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["h2"], base_label[i].contexts["h2"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["i1"], base_label[i].contexts["i1"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["i2"], base_label[i].contexts["i2"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["i3"], base_label[i].contexts["i3"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["i4"], base_label[i].contexts["i4"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["i5"], base_label[i].contexts["i5"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["i6"], base_label[i].contexts["i6"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["i7"], base_label[i].contexts["i7"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["i8"], base_label[i].contexts["i8"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["j1"], base_label[i].contexts["j1"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["j2"], base_label[i].contexts["j2"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["k1"], base_label[i].contexts["k1"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["k2"], base_label[i].contexts["k2"], f"index={i}"
+            )
+            self.assertEqual(
+                regen[i].contexts["k3"], base_label[i].contexts["k3"], f"index={i}"
+            )
