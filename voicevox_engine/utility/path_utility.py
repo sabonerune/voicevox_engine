@@ -36,9 +36,9 @@ def is_development() -> bool:
 def get_save_dir():
     # FIXME: ファイル保存場所をエンジン固有のIDが入ったものにする
     if is_development():
-        app_name = "fixme-tempname-dev"
+        app_name = "openjvox"
     else:
-        app_name = "fixme-tempname"
+        app_name = "openjvox-dev"
     return Path(user_data_dir(app_name, "") ) / "engine"
 
 
