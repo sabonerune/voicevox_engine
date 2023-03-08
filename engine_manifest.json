@@ -35,7 +35,7 @@
         },
         "adjust_intonation_scale": {
             "type": "bool",
-            "value": true,
+            "value": false,
             "name": "全体の抑揚の調整"
         },
         "adjust_volume_scale": {

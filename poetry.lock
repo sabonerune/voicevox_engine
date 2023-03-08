@@ -1652,7 +1652,7 @@ files = [
 
 [[package]]
 name = "pyopenjtalk"
-version = "0.2.0+f4ade29"
+version = "0.3.0+b661ad7"
 description = "A python wrapper for OpenJTalk"
 category = "main"
 optional = false
@@ -1662,20 +1662,21 @@ develop = false
 
 [package.dependencies]
 cython = ">=0.21.0"
-numpy = ">=1.8.0"
+numpy = ">=1.20.0"
 six = "*"
 tqdm = "*"
 
 [package.extras]
 docs = ["Jinja2 (>=3.0.1)", "ipython", "jupyter", "nbsphinx (>=0.8.6)", "pandoc", "sphinx_rtd_theme"]
-lint = ["black (>=19.19b0,<=20.8)", "flake8 (>=3.7,<4)", "flake8-bugbear", "isort (>=4.3,<5.2.0)", "mypy (<=0.910)", "pysen", "types-setuptools"]
+lint = ["black (>=19.19b0,<=20.8)", "click (<8.1.0)", "flake8 (>=3.7,<4)", "flake8-bugbear", "isort (>=4.3,<5.2.0)", "mypy (<=0.910)", "pysen", "types-decorator", "types-setuptools"]
+marine = ["marine (>=0.0.5)"]
 test = ["pytest", "scipy"]
 
 [package.source]
 type = "git"
-url = "https://github.com/VOICEVOX/pyopenjtalk"
-reference = "f4ade29ef9a4f43d8605103cb5bacc29e0b2ccae"
-resolved_reference = "f4ade29ef9a4f43d8605103cb5bacc29e0b2ccae"
+url = "https://github.com/sabonerune/pyopenjtalk.git"
+reference = "b661ad792208f3c901f84d961913791155401942"
+resolved_reference = "b661ad792208f3c901f84d961913791155401942"
 
 [[package]]
 name = "pyrsistent"
@@ -2417,4 +2418,4 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.8,>=3.8.1"
-content-hash = "e55cde5c96a363d408ed2753fb0291d0bd8e1efc07d0ac848aa9421e8a831764"
+content-hash = "6c03af70d74f96a05d8552122b1e69656e0940547d64be7691e14bb287ed95a0"

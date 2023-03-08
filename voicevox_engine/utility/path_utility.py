@@ -35,11 +35,12 @@ def is_development() -> bool:
 
 def get_save_dir():
     # FIXME: ファイル保存場所をエンジン固有のIDが入ったものにする
+    app_name = "openjvox"
     if is_development():
-        app_name = "openjvox"
+        suffix = "-dev"
     else:
-        app_name = "openjvox-dev"
-    return Path(user_data_dir(app_name, "")) / "engine"
+        suffix = ""
+    return Path(user_data_dir(f"{app_name}{suffix}", "")) / f"{app_name}-engine"
 
 
 def delete_file(file_path: str) -> None:

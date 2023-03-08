@@ -25,7 +25,8 @@ from pydantic import ValidationError, conint
 from starlette.background import BackgroundTask
 from starlette.responses import FileResponse
 
-from voicevox_engine import __version__
+from voicevox_engine import __version__, speaker_loader
+from voicevox_engine.synthesis_engine.hts_engine_api_engine import HtsEngineApiEngine
 from voicevox_engine.cancellable_engine import CancellableEngine
 from voicevox_engine.downloadable_library import LibraryManager
 from voicevox_engine.engine_manifest import EngineManifestLoader
@@ -110,7 +111,7 @@ def set_output_log_utf8() -> None:
 
 
 def generate_app(
-    synthesis_engines: Dict[str, SynthesisEngineBase],
+    synthesis_engines: Dict[str, HtsEngineApiEngine],
     latest_core_version: str,
     setting_loader: SettingLoader,
     root_dir: Optional[Path] = None,
@@ -201,7 +202,7 @@ def generate_app(
     def apply_user_dict():
         update_dict()
 
-    def get_engine(core_version: Optional[str]) -> SynthesisEngineBase:
+    def get_engine(core_version: Optional[str]) -> HtsEngineApiEngine:
         if core_version is None:
             return synthesis_engines[latest_core_version]
         if core_version in synthesis_engines:
@@ -727,7 +728,7 @@ def generate_app(
         core_version: Optional[str] = None,
     ):
         engine = get_engine(core_version)
-        return metas_store.load_combined_metas(engine=engine)
+        return engine.speakers_meta
 
     @app.get("/speaker_info", response_model=SpeakerInfo, tags=["その他"])
     def speaker_info(speaker_uuid: str, core_version: Optional[str] = None):
@@ -739,64 +740,11 @@ def generate_app(
         -------
         ret_data: SpeakerInfo
         """
-        speakers = json.loads(get_engine(core_version).speakers)
-        for i in range(len(speakers)):
-            if speakers[i]["speaker_uuid"] == speaker_uuid:
-                speaker = speakers[i]
-                break
+        info = get_engine(core_version).speaker_info(speaker_uuid)
+        if info is not None:
+            return info
         else:
             raise HTTPException(status_code=404, detail="該当する話者が見つかりません")
-
-        try:
-            policy = (root_dir / f"speaker_info/{speaker_uuid}/policy.md").read_text(
-                "utf-8"
-            )
-            portrait = b64encode_str(
-                (root_dir / f"speaker_info/{speaker_uuid}/portrait.png").read_bytes()
-            )
-            style_infos = []
-            for style in speaker["styles"]:
-                id = style["id"]
-                icon = b64encode_str(
-                    (
-                        root_dir / f"speaker_info/{speaker_uuid}/icons/{id}.png"
-                    ).read_bytes()
-                )
-                style_portrait_path = (
-                    root_dir / f"speaker_info/{speaker_uuid}/portraits/{id}.png"
-                )
-                style_portrait = (
-                    b64encode_str(style_portrait_path.read_bytes())
-                    if style_portrait_path.exists()
-                    else None
-                )
-                voice_samples = [
-                    b64encode_str(
-                        (
-                            root_dir
-                            / "speaker_info/{}/voice_samples/{}_{}.wav".format(
-                                speaker_uuid, id, str(j + 1).zfill(3)
-                            )
-                        ).read_bytes()
-                    )
-                    for j in range(3)
-                ]
-                style_infos.append(
-                    {
-                        "id": id,
-                        "icon": icon,
-                        "portrait": style_portrait,
-                        "voice_samples": voice_samples,
-                    }
-                )
-        except FileNotFoundError:
-            import traceback
-
-            traceback.print_exc()
-            raise HTTPException(status_code=500, detail="追加情報が見つかりませんでした")
-
-        ret_data = {"policy": policy, "portrait": portrait, "style_infos": style_infos}
-        return ret_data
 
     @app.get(
         "/downloadable_libraries",
@@ -1195,27 +1143,25 @@ if __name__ == "__main__":
 
     cpu_num_threads: Optional[int] = args.cpu_num_threads
 
-    synthesis_engines = make_synthesis_engines(
-        use_gpu=args.use_gpu,
-        voicelib_dirs=args.voicelib_dir,
-        voicevox_dir=args.voicevox_dir,
-        runtime_dirs=args.runtime_dir,
-        cpu_num_threads=cpu_num_threads,
-        enable_mock=args.enable_mock,
-        load_all_models=args.load_all_models,
-    )
-    assert len(synthesis_engines) != 0, "音声合成エンジンがありません。"
-    latest_core_version = str(max([LooseVersion(ver) for ver in synthesis_engines]))
-
     cancellable_engine = None
     if args.enable_cancellable_synthesis:
         cancellable_engine = CancellableEngine(args)
 
     root_dir = args.voicevox_dir if args.voicevox_dir is not None else engine_root()
 
+    manifestLoader = EngineManifestLoader(root_dir / "engine_manifest.json", root_dir)
     setting_loader = SettingLoader(args.setting_file)
 
+    manifest = manifestLoader.load_manifest()
     settings = setting_loader.load_setting_file()
+    speakers = speaker_loader.load_speakers(
+        builtin_dir=root_dir / "resources" / "buitin_speaker"
+    )
+
+    engine = HtsEngineApiEngine(speakers, manifest.default_sampling_rate)
+
+    synthesis_engines = {"0.0.0": engine}
+    latest_core_version = str(max([LooseVersion(ver) for ver in synthesis_engines]))
 
     cors_policy_mode = (
         args.cors_policy_mode

@@ -1,11 +1,13 @@
+import json
 from typing import List, Optional, Tuple
-
+from itertools import chain
 import numpy as np
-from pyopenjtalk import synthesize
+from pyopenjtalk import htsengine
 from scipy.signal import resample
 
 from voicevox_engine.full_context_label import Phoneme
 from voicevox_engine.model import AccentPhrase, AudioQuery
+from voicevox_engine.speaker_loader.speaker import Speakers
 
 from .synthesis_engine import SynthesisEngineBase
 
@@ -420,49 +422,65 @@ def accent_phrase_to_phonemes(accent_phrases: List[AccentPhrase]):
 
 class HtsEngineApiEngine(SynthesisEngineBase):
     """
-    SynthesisEngine [Mock]
+    HTS Engine API SynthesisEngine
     """
 
-    def __init__(
-        self,
-        speakers: str,
-        supported_devices: Optional[str] = None,
-    ):
-        """
-        __init__ [Mock]
-        """
+    def __init__(self, speakers: Speakers, default_sampling_rate: int):
         super().__init__()
 
         self._speakers = speakers
-        self._supported_devices = supported_devices
-        self.default_sampling_rate = 24000
+        self.default_sampling_rate = default_sampling_rate
+
+    @property
+    def speakers_meta(self):
+        return self._speakers.speaker_meta
+
+    def speaker_info(self, speaker_id: str):
+        return self._speakers.speakerInfo(speaker_id)
 
     @property
     def speakers(self) -> str:
-        return self._speakers
+        return str([i.json(ensure_ascii=False) for i in self._speakers.speaker_meta])
 
     @property
     def supported_devices(self) -> Optional[str]:
-        return self._supported_devices
+        return json.dumps({"cpu": True})
 
     def replace_phoneme_length(
         self, accent_phrases: List[AccentPhrase], speaker_id: int
     ) -> List[AccentPhrase]:
         """
         replace_phoneme_length 入力accent_phrasesを変更せずにそのまま返します [Mock]
-
         Parameters
         ----------
         accent_phrases : List[AccentPhrase]
-            フレーズ句のリスト
+            アクセント句モデルのリスト
         speaker_id : int
-            話者
-
+            話者ID
         Returns
         -------
         List[AccentPhrase]
             フレーズ句のリスト（変更なし）
         """
+        # TODO: query.speedScaleを設定してもズレないようにしたら実装する
+        # moras = chain.from_iterable(
+        #     i.moras + ([i.pause_mora] if i.pause_mora is not None else [])
+        #     for i in accent_phrases
+        # )
+        # phonemes = accent_phrase_to_phonemes(accent_phrases)
+        # htsvoice = self._speakers.style(speaker_id).htsvoice
+        # engine = htsengine.HTSEngine(bytes(htsvoice))
+        # sr = engine.get_sampling_frequency()
+        # engine.synthesize_from_strings([i.label for i in phonemes])
+        # lab = engine.get_phoneme_length()
+        # engine.refresh()
+        # index = 1
+        # for mora in moras:
+        #     if mora.consonant is not None:
+        #         mora.consonant_length = lab[index] / sr
+        #         index += 1
+        #     mora.vowel_length = lab[index] / sr
+        #     index += 1
         return accent_phrases
 
     def replace_mora_pitch(
@@ -487,7 +505,7 @@ class HtsEngineApiEngine(SynthesisEngineBase):
 
     def _synthesis_impl(self, query: AudioQuery, speaker_id: int) -> np.ndarray:
         """
-        synthesis voicevox coreを使わずに、音声合成する [Mock]
+        HTS Engine APIを使用して音声合成する
 
         Parameters
         ----------
@@ -501,15 +519,38 @@ class HtsEngineApiEngine(SynthesisEngineBase):
         wave [npt.NDArray[np.int16]]
             音声波形データをNumPy配列で返します
         """
-
         phonemes = accent_phrase_to_phonemes(query.accent_phrases)
-        wave, sr = synthesize(
-            [i.label for i in phonemes], query.speedScale, query.pitchScale * 100
-        )
+        htsvoice = self._speakers.style(speaker_id).htsvoice
+        engine = htsengine.HTSEngine(bytes(htsvoice))
+        sr = engine.get_sampling_frequency()
+
+        engine.set_speed(query.speedScale)
+        engine.add_half_tone(query.pitchScale * 60)
+        engine.synthesize_from_strings([i.label for i in phonemes])
+
+        lab = engine.get_phoneme_length()
+        wave = engine.get_generated_speech()
+
+        engine.refresh()
+
+        pre_size = query.prePhonemeLength / query.speedScale * sr
+        post_size = query.postPhonemeLength / query.speedScale * sr
+        pre_clip_size = int(lab[0] - pre_size)
+        post_clip_size = int(lab[-1] - post_size)
+        if pre_clip_size > 0 or post_clip_size > 0:
+            wave = wave[
+                max(0, pre_clip_size) : -post_clip_size if post_clip_size > 0 else None
+            ]
+        if pre_clip_size < 0 or post_clip_size < 0:
+            wave = np.pad(
+                wave,
+                (max(0, -pre_clip_size), max(0, -post_clip_size)),
+                constant_values=0,
+            )
 
         # volume
         wave *= query.volumeScale
         if sr != query.outputSamplingRate:
             wave = resample(wave, query.outputSamplingRate * len(wave) // sr)
 
-        return wave.astype("int16")
+        return wave.astype(np.int16)
