@@ -67,6 +67,8 @@ class Speaker:
     @property
     def speaker_info(self):
         policy_str = self.speaker_policy.read_text(encoding="utf-8")
+        if self.speaker_policy.suffix == ".txt":
+            policy_str = "<pre>" + policy_str + "</pre>"
         portrait_str = b64encode_str(self.speaker_portrait.read_bytes())
         return Metas.SpeakerInfo(
             policy=policy_str,
