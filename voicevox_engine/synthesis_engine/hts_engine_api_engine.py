@@ -1,6 +1,6 @@
 import json
 from typing import List, Optional, Tuple
-from itertools import chain
+
 import numpy as np
 from pyopenjtalk import htsengine
 from scipy.signal import resample

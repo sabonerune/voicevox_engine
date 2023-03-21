@@ -26,7 +26,6 @@ from starlette.background import BackgroundTask
 from starlette.responses import FileResponse
 
 from voicevox_engine import __version__, speaker_loader
-from voicevox_engine.synthesis_engine.hts_engine_api_engine import HtsEngineApiEngine
 from voicevox_engine.cancellable_engine import CancellableEngine
 from voicevox_engine.downloadable_library import LibraryManager
 from voicevox_engine.engine_manifest import EngineManifestLoader
@@ -63,7 +62,7 @@ from voicevox_engine.setting import (
     Setting,
     SettingLoader,
 )
-from voicevox_engine.synthesis_engine import SynthesisEngineBase, make_synthesis_engines
+from voicevox_engine.synthesis_engine.hts_engine_api_engine import HtsEngineApiEngine
 from voicevox_engine.user_dict import (
     apply_word,
     delete_word,
