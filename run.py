@@ -31,7 +31,7 @@ from voicevox_engine.downloadable_library import LibraryManager
 from voicevox_engine.engine_manifest import EngineManifestLoader
 from voicevox_engine.engine_manifest.EngineManifest import EngineManifest
 from voicevox_engine.kana_parser import create_kana, parse_kana
-from voicevox_engine.metas.MetasStore import MetasStore, construct_lookup
+from voicevox_engine.metas.MetasStore import construct_lookup
 from voicevox_engine.model import (
     AccentPhrase,
     AudioQuery,
@@ -181,8 +181,6 @@ def generate_app(
         root_dir / "engine_manifest.json", root_dir
     )
     library_manager = LibraryManager(get_save_dir() / "installed_libraries")
-
-    metas_store = MetasStore(root_dir / "speaker_info")
 
     setting_ui_template = Jinja2Templates(directory=engine_root() / "ui_template")
 
@@ -513,7 +511,7 @@ def generate_app(
         engine = get_engine(core_version)
 
         try:
-            speakers = metas_store.load_combined_metas(engine=engine)
+            speakers = engine.speakers_meta
             morphable_targets = get_morphable_targets(
                 speakers=speakers, base_speakers=base_speakers
             )
@@ -554,7 +552,7 @@ def generate_app(
         engine = get_engine(core_version)
 
         try:
-            speakers = metas_store.load_combined_metas(engine=engine)
+            speakers = engine.speakers_meta
             speaker_lookup = construct_lookup(speakers=speakers)
             is_permitted = is_synthesis_morphing_permitted(
                 speaker_lookup, base_speaker, target_speaker
