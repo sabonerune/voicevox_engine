@@ -2,9 +2,9 @@
   "htsvoice": "mei_bashful.htsvoice",
   "icon": "mei_bashful.png",
   "samples": [
-    "dummy_1.wav",
-    "dummy_2.wav",
-    "dummy_3.wav"
+    "mei_bashful_sample_001.wav",
+    "mei_bashful_sample_002.wav",
+    "mei_bashful_sample_003.wav"
   ],
   "config": {
     "half_tone_multiplier": "1",

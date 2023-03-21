@@ -1,10 +1,10 @@
 {
   "htsvoice": "mei_normal.htsvoice",
-  "icon": "icon.png",
+  "icon": "mei_normal.png",
   "samples": [
-    "dummy_1.wav",
-    "dummy_2.wav",
-    "dummy_3.wav"
+    "mei_normal_sample_001.wav",
+    "mei_normal_sample_002.wav",
+    "mei_normal_sample_003.wav"
   ],
   "config": {
     "half_tone_multiplier": "1",
