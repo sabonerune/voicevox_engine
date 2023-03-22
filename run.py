@@ -9,7 +9,6 @@ import sys
 import traceback
 import zipfile
 from distutils.version import LooseVersion
-from functools import lru_cache
 from io import BytesIO, TextIOWrapper
 from pathlib import Path
 from tempfile import NamedTemporaryFile, TemporaryFile
@@ -26,12 +25,10 @@ from starlette.background import BackgroundTask
 from starlette.responses import FileResponse
 
 from voicevox_engine import __version__, speaker_loader
-from voicevox_engine.cancellable_engine import CancellableEngine
 from voicevox_engine.downloadable_library import LibraryManager
 from voicevox_engine.engine_manifest import EngineManifestLoader
 from voicevox_engine.engine_manifest.EngineManifest import EngineManifest
 from voicevox_engine.kana_parser import create_kana, parse_kana
-from voicevox_engine.metas.MetasStore import construct_lookup
 from voicevox_engine.model import (
     AccentPhrase,
     AudioQuery,
@@ -41,18 +38,9 @@ from voicevox_engine.model import (
     ParseKanaError,
     Speaker,
     SpeakerInfo,
-    SpeakerNotFoundError,
     SupportedDevicesInfo,
     UserDictWord,
     WordTypes,
-)
-from voicevox_engine.morphing import (
-    get_morphable_targets,
-    is_synthesis_morphing_permitted,
-    synthesis_morphing,
-)
-from voicevox_engine.morphing import (
-    synthesis_morphing_parameter as _synthesis_morphing_parameter,
 )
 from voicevox_engine.part_of_speech_data import MAX_PRIORITY, MIN_PRIORITY
 from voicevox_engine.preset import Preset, PresetError, PresetManager
@@ -183,11 +171,6 @@ def generate_app(
     library_manager = LibraryManager(get_save_dir() / "installed_libraries")
 
     setting_ui_template = Jinja2Templates(directory=engine_root() / "ui_template")
-
-    # キャッシュを有効化
-    # モジュール側でlru_cacheを指定するとキャッシュを制御しにくいため、HTTPサーバ側で指定する
-    # TODO: キャッシュを管理するモジュール側API・HTTP側APIを用意する
-    synthesis_morphing_parameter = lru_cache(maxsize=4)(_synthesis_morphing_parameter)
 
     # @app.on_event("startup")
     # async def start_catch_disconnection():
@@ -508,22 +491,7 @@ def generate_app(
         プロパティが存在しない場合は、モーフィングが許可されているとみなします。
         返り値の話者はstring型なので注意。
         """
-        engine = get_engine(core_version)
-
-        try:
-            speakers = engine.speakers_meta
-            morphable_targets = get_morphable_targets(
-                speakers=speakers, base_speakers=base_speakers
-            )
-            # jsonはint型のキーを持てないので、string型に変換する
-            return [
-                {str(k): v for k, v in morphable_target.items()}
-                for morphable_target in morphable_targets
-            ]
-        except SpeakerNotFoundError as e:
-            raise HTTPException(
-                status_code=404, detail=f"該当する話者(speaker={e.speaker})が見つかりません"
-            )
+        raise HTTPException(status_code=404, detail="この機能は実装されていません")
 
     @app.post(
         "/synthesis_morphing",
@@ -549,52 +517,7 @@ def generate_app(
         指定された2人の話者で音声を合成、指定した割合でモーフィングした音声を得ます。
         モーフィングの割合は`morph_rate`で指定でき、0.0でベースの話者、1.0でターゲットの話者に近づきます。
         """
-        engine = get_engine(core_version)
-
-        try:
-            speakers = engine.speakers_meta
-            speaker_lookup = construct_lookup(speakers=speakers)
-            is_permitted = is_synthesis_morphing_permitted(
-                speaker_lookup, base_speaker, target_speaker
-            )
-            if not is_permitted:
-                raise HTTPException(
-                    status_code=400,
-                    detail="指定された話者ペアでのモーフィングはできません",
-                )
-        except SpeakerNotFoundError as e:
-            raise HTTPException(
-                status_code=404, detail=f"該当する話者(speaker={e.speaker})が見つかりません"
-            )
-
-        # 生成したパラメータはキャッシュされる
-        morph_param = synthesis_morphing_parameter(
-            engine=engine,
-            query=query,
-            base_speaker=base_speaker,
-            target_speaker=target_speaker,
-        )
-
-        morph_wave = synthesis_morphing(
-            morph_param=morph_param,
-            morph_rate=morph_rate,
-            output_fs=query.outputSamplingRate,
-            output_stereo=query.outputStereo,
-        )
-
-        with NamedTemporaryFile(delete=False) as f:
-            soundfile.write(
-                file=f,
-                data=morph_wave,
-                samplerate=query.outputSamplingRate,
-                format="WAV",
-            )
-
-        return FileResponse(
-            f.name,
-            media_type="audio/wav",
-            background=BackgroundTask(delete_file, f.name),
-        )
+        raise HTTPException(status_code=404, detail="この機能は実装されていません")
 
     @app.post(
         "/connect_waves",
@@ -1051,58 +974,12 @@ if __name__ == "__main__":
 
     default_cors_policy_mode = CorsPolicyMode.localapps
 
-    parser = argparse.ArgumentParser(description="VOICEVOX のエンジンです。")
+    parser = argparse.ArgumentParser(description="HTS Engineを利用したエンジンです。")
     parser.add_argument(
         "--host", type=str, default="127.0.0.1", help="接続を受け付けるホストアドレスです。"
     )
     parser.add_argument("--port", type=int, default=64208, help="接続を受け付けるポート番号です。")
-    parser.add_argument(
-        "--use_gpu", action="store_true", help="指定するとGPUを使って音声合成するようになります。"
-    )
-    parser.add_argument(
-        "--voicevox_dir", type=Path, default=None, help="VOICEVOXのディレクトリパスです。"
-    )
-    parser.add_argument(
-        "--voicelib_dir",
-        type=Path,
-        default=None,
-        action="append",
-        help="VOICEVOX COREのディレクトリパスです。",
-    )
-    parser.add_argument(
-        "--runtime_dir",
-        type=Path,
-        default=None,
-        action="append",
-        help="VOICEVOX COREで使用するライブラリのディレクトリパスです。",
-    )
-    parser.add_argument(
-        "--enable_mock",
-        action="store_true",
-        help="指定するとVOICEVOX COREを使わずモックで音声合成を行います。",
-    )
-    parser.add_argument(
-        "--enable_cancellable_synthesis",
-        action="store_true",
-        help="指定すると音声合成を途中でキャンセルできるようになります。",
-    )
-    parser.add_argument("--init_processes", type=int, default=2)
-    parser.add_argument(
-        "--load_all_models", action="store_true", help="指定すると起動時に全ての音声合成モデルを読み込みます。"
-    )
-
-    # 引数へcpu_num_threadsの指定がなければ、環境変数をロールします。
-    # 環境変数にもない場合は、Noneのままとします。
-    # VV_CPU_NUM_THREADSが空文字列でなく数値でもない場合、エラー終了します。
-    parser.add_argument(
-        "--cpu_num_threads",
-        type=int,
-        default=os.getenv("VV_CPU_NUM_THREADS") or None,
-        help=(
-            "音声合成を行うスレッド数です。指定しないと、代わりに環境変数VV_CPU_NUM_THREADSの値が使われます。"
-            "VV_CPU_NUM_THREADSが空文字列でなく数値でもない場合はエラー終了します。"
-        ),
-    )
+    parser.add_argument("--use_gpu", action="store_true", help="OpenJVoxでは使用しません。")
 
     parser.add_argument(
         "--output_log_utf8",
@@ -1138,13 +1015,9 @@ if __name__ == "__main__":
     if args.output_log_utf8:
         set_output_log_utf8()
 
-    cpu_num_threads: Optional[int] = args.cpu_num_threads
-
     cancellable_engine = None
-    if args.enable_cancellable_synthesis:
-        cancellable_engine = CancellableEngine(args)
 
-    root_dir = args.voicevox_dir if args.voicevox_dir is not None else engine_root()
+    root_dir = engine_root()
 
     manifestLoader = EngineManifestLoader(root_dir / "engine_manifest.json", root_dir)
     setting_loader = SettingLoader(args.setting_file)
