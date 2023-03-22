@@ -7,7 +7,7 @@
     "mei_bashful_sample_003.wav"
   ],
   "config": {
-    "half_tone_multiplier": "1",
+    "half_tone_multiplier": "1.69",
     "speed_multiplier": "1",
     "volume_multiplier": "1"
   }

@@ -1,4 +1,5 @@
 import json
+import logging
 from typing import List, Optional, Tuple
 
 import numpy as np
@@ -10,6 +11,8 @@ from voicevox_engine.model import AccentPhrase, AudioQuery
 from voicevox_engine.speaker_loader.speaker import Speakers
 
 from .synthesis_engine import SynthesisEngineBase
+
+logger = logging.getLogger(__name__)
 
 
 def accent_phrase_to_phonemes(accent_phrases: List[AccentPhrase]):
@@ -519,8 +522,11 @@ class HtsEngineApiEngine(SynthesisEngineBase):
         wave [npt.NDArray[np.int16]]
             音声波形データをNumPy配列で返します
         """
+        style = self._speakers.style(speaker_id)
+        if style is None:
+            raise ValueError("無効なspeaker_idです")
+        htsvoice = style.htsvoice
         phonemes = accent_phrase_to_phonemes(query.accent_phrases)
-        htsvoice = self._speakers.style(speaker_id).htsvoice
         engine = htsengine.HTSEngine(bytes(htsvoice))
         sr = engine.get_sampling_frequency()
 
@@ -549,7 +555,7 @@ class HtsEngineApiEngine(SynthesisEngineBase):
             )
 
         # volume
-        wave *= query.volumeScale
+        wave *= query.volumeScale * style.config.volume_multiplie
         if sr != query.outputSamplingRate:
             wave = resample(wave, query.outputSamplingRate * len(wave) // sr)
 

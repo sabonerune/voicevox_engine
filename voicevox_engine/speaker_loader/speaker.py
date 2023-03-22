@@ -9,9 +9,7 @@ from voicevox_engine.metas import Metas
 
 
 class VoiceConfig(BaseModel):
-    half_tone_multiplier: Optional[float]
-    speed_multiplier: Optional[float]
-    volume_multiplie: Optional[float]
+    volume_multiplie = 1.0
 
 
 def b64encode_str(s):
@@ -26,6 +24,7 @@ class Style:
     icon: Path
     portrait: Optional[Path]
     samples: List[Path]
+    config: VoiceConfig
 
     @property
     def speaker_style(self):

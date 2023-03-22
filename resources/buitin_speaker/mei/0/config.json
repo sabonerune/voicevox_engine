@@ -7,8 +7,6 @@
     "mei_normal_sample_003.wav"
   ],
   "config": {
-    "half_tone_multiplier": "1",
-    "speed_multiplier": "1",
-    "volume_multiplier": "1"
+    "volume_multiplier": "1.95"
   }
 }
