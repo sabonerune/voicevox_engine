@@ -176,7 +176,7 @@ files = [
 name = "cffi"
 version = "1.15.1"
 description = "Foreign Function Interface for Python calling C code."
-category = "main"
+category = "dev"
 optional = false
 python-versions = "*"
 files = [
@@ -1532,7 +1532,7 @@ files = [
 name = "pycparser"
 version = "2.21"
 description = "C parser in Python"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 files = [
@@ -2113,27 +2113,6 @@ files = [
 ]
 
 [[package]]
-name = "soundfile"
-version = "0.10.3.post1"
-description = "An audio library based on libsndfile, CFFI and NumPy"
-category = "main"
-optional = false
-python-versions = "*"
-files = [
-    {file = "SoundFile-0.10.3.post1-py2.py3-none-any.whl", hash = "sha256:2d17e0a6fc2af0d6c1d868bafa5ec80aae6e186a97fec8db07ad6af29842fbc7"},
-    {file = "SoundFile-0.10.3.post1-py2.py3.cp26.cp27.cp32.cp33.cp34.cp35.cp36.pp27.pp32.pp33-none-macosx_10_5_x86_64.macosx_10_6_intel.macosx_10_9_intel.macosx_10_9_x86_64.whl", hash = "sha256:5e342ee293b896d31da67617fe65d0bdca217af193991b0cb6052353b1e0e506"},
-    {file = "SoundFile-0.10.3.post1-py2.py3.cp26.cp27.cp32.cp33.cp34.cp35.cp36.pp27.pp32.pp33-none-win32.whl", hash = "sha256:4555438c2c4f02b39fea2ed40f6ddeda88a80cd1ee9dd129be4d5f5134698cc2"},
-    {file = "SoundFile-0.10.3.post1-py2.py3.cp26.cp27.cp32.cp33.cp34.cp35.cp36.pp27.pp32.pp33-none-win_amd64.whl", hash = "sha256:b361d4ac1519a2e516cabafa6bf7e93492f999f35d7d25350cd87fdc3e5cb27e"},
-    {file = "SoundFile-0.10.3.post1.tar.gz", hash = "sha256:490cff42650733d1832728b937fe99fa1802896f5ef4d61bcf78cf7ebecb107b"},
-]
-
-[package.dependencies]
-cffi = ">=1.0"
-
-[package.extras]
-numpy = ["numpy"]
-
-[[package]]
 name = "starlette"
 version = "0.16.0"
 description = "The little ASGI library that shines."
@@ -2418,4 +2397,4 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.8,>=3.8.1"
-content-hash = "6c03af70d74f96a05d8552122b1e69656e0940547d64be7691e14bb287ed95a0"
+content-hash = "d3baa82212582f339da97a0fefb671f79ed49548f51cf50294abcd927dafd3ce"

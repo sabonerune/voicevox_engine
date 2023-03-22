@@ -4,7 +4,7 @@ from unittest import TestCase
 
 import numpy as np
 import numpy.testing
-import soundfile
+from scipy.io import wavfile
 from scipy.signal import resample
 
 from voicevox_engine.utility import ConnectBase64WavesException, connect_base64_waves
@@ -21,12 +21,10 @@ def generate_sine_wave_ndarray(
 
 def encode_bytes(wave_ndarray: np.ndarray, samplerate: int) -> bytes:
     wave_bio = io.BytesIO()
-    soundfile.write(
-        file=wave_bio,
+    wavfile.write(
+        filename=wave_bio,
+        rate=samplerate,
         data=wave_ndarray,
-        samplerate=samplerate,
-        format="WAV",
-        subtype="FLOAT",
     )
     wave_bio.seek(0)
 

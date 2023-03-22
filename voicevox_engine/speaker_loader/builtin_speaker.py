@@ -47,7 +47,7 @@ def load_buitin_config(builtin_dir: Path):
                 if style_config.style_portrait is None
                 else style_dir / style_config.style_portrait,
                 samples=samples,
-                config=style_config.config
+                config=style_config.config,
             )
             styles.append(style)
         speakers[speaker_config.speaker_id] = Speaker(

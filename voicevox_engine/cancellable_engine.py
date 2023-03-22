@@ -7,10 +7,9 @@ from multiprocessing.connection import Connection
 from tempfile import NamedTemporaryFile
 from typing import List, Optional, Tuple
 
-import soundfile
-
 # FIXME: remove FastAPI dependency
 from fastapi import HTTPException, Request
+from scipy.io import wavfile
 
 from .model import AudioQuery
 from .synthesis_engine import make_synthesis_engines
@@ -211,9 +210,7 @@ def start_synthesis_subprocess(
                 continue
             wave = _engine._synthesis_impl(query, speaker_id)
             with NamedTemporaryFile(delete=False) as f:
-                soundfile.write(
-                    file=f, data=wave, samplerate=query.outputSamplingRate, format="WAV"
-                )
+                wavfile.write(filename=f, rate=query.outputSamplingRate, data=wave)
             sub_proc_con.send(f.name)
         except Exception:
             sub_proc_con.close()

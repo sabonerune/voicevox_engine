@@ -234,19 +234,6 @@ def generate_licenses() -> List[License]:
             )
         )
 
-    # libsndfile-binaries
-    with urllib.request.urlopen(
-        "https://raw.githubusercontent.com/bastibe/libsndfile-binaries/84cb164928f17c7ca0c1e5c40342c20ce2b90e8c/COPYING"  # noqa: B950
-    ) as res:
-        licenses.append(
-            License(
-                name="libsndfile-binaries",
-                version="1.0.28",
-                license="LGPL-2.1 license",
-                text=res.read().decode(),
-            )
-        )
-
     # libogg
     with urllib.request.urlopen(
         "https://raw.githubusercontent.com/xiph/ogg/v1.3.2/COPYING"

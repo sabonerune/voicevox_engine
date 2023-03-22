@@ -10,7 +10,7 @@ from subprocess import Popen
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
-import soundfile
+from scipy.io import wavfile
 
 base_url = "http://localhost:50021/"
 
@@ -44,7 +44,7 @@ def test_release_build(dist_dir: Path) -> None:
     req.data = json.dumps(query).encode("utf-8")
     with urlopen(req) as res:
         wave = res.read()
-    soundfile.read(BytesIO(wave))
+    wavfile.read(BytesIO(wave))
 
     # エンジンマニフェスト
     req = Request(base_url + "engine_manifest", method="GET")

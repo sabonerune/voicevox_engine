@@ -14,13 +14,13 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile, TemporaryFile
 from typing import Dict, List, Optional
 
-import soundfile
 import uvicorn
 from fastapi import FastAPI, Form, HTTPException, Query, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import ValidationError, conint
+from scipy.io import wavfile
 from starlette.background import BackgroundTask
 from starlette.responses import FileResponse
 
@@ -374,9 +374,7 @@ def generate_app(
         )
 
         with NamedTemporaryFile(delete=False) as f:
-            soundfile.write(
-                file=f, data=wave, samplerate=query.outputSamplingRate, format="WAV"
-            )
+            wavfile.write(filename=f, rate=query.outputSamplingRate, data=wave)
 
         return FileResponse(
             f.name,
@@ -460,11 +458,10 @@ def generate_app(
                     with TemporaryFile() as wav_file:
 
                         wave = engine.synthesis(query=queries[i], speaker_id=speaker)
-                        soundfile.write(
-                            file=wav_file,
+                        wavfile.write(
+                            filename=wav_file,
+                            rate=sampling_rate,
                             data=wave,
-                            samplerate=sampling_rate,
-                            format="WAV",
                         )
                         wav_file.seek(0)
                         zip_file.writestr(f"{str(i + 1).zfill(3)}.wav", wav_file.read())
@@ -542,11 +539,10 @@ def generate_app(
             return HTTPException(status_code=422, detail=str(err))
 
         with NamedTemporaryFile(delete=False) as f:
-            soundfile.write(
-                file=f,
+            wavfile.write(
+                filename=f,
+                rate=sampling_rate,
                 data=waves_nparray,
-                samplerate=sampling_rate,
-                format="WAV",
             )
 
         return FileResponse(
