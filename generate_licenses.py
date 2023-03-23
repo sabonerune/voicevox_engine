@@ -44,30 +44,6 @@ def generate_licenses() -> List[License]:
             text=Path("docs/licenses//open_jtalk/mecab-naist-jdic/COPYING").read_text(),
         )
     )
-    with urllib.request.urlopen(
-        "https://raw.githubusercontent.com/r9y9/pyopenjtalk/master/pyopenjtalk/htsvoice/LICENSE_mei_normal.htsvoice"  # noqa: B950
-    ) as res:
-        licenses.append(
-            License(
-                name='HTS Voice "Mei"',
-                version=None,
-                license="Creative Commons Attribution 3.0 license",
-                text=res.read().decode(),
-            )
-        )
-
-    # VOICEVOX CORE
-    with urllib.request.urlopen(
-        "https://raw.githubusercontent.com/VOICEVOX/voicevox_core/main/LICENSE"
-    ) as res:
-        licenses.append(
-            License(
-                name="VOICEVOX CORE",
-                version=None,
-                license="MIT license",
-                text=res.read().decode(),
-            )
-        )
 
     # VOICEVOX ENGINE
     with urllib.request.urlopen(
@@ -91,32 +67,6 @@ def generate_licenses() -> List[License]:
                 name="world",
                 version=None,
                 license="Modified BSD license",
-                text=res.read().decode(),
-            )
-        )
-
-    # pytorch
-    with urllib.request.urlopen(
-        "https://raw.githubusercontent.com/pytorch/pytorch/master/LICENSE"
-    ) as res:
-        licenses.append(
-            License(
-                name="PyTorch",
-                version="1.9.0",
-                license="BSD-style license",
-                text=res.read().decode(),
-            )
-        )
-
-    # onnxruntime
-    with urllib.request.urlopen(
-        "https://raw.githubusercontent.com/microsoft/onnxruntime/master/LICENSE"
-    ) as res:
-        licenses.append(
-            License(
-                name="ONNX Runtime",
-                version="1.13.1",
-                license="MIT license",
                 text=res.read().decode(),
             )
         )

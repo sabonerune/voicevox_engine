@@ -1,5 +1,8 @@
 # -*- mode: python ; coding: utf-8 -*-
+import os
 from PyInstaller.utils.hooks import collect_data_files
+
+python_flag = [] if os.getenv("OJV_DEBUG") == 1 else [("O", None, "OPTION")]
 
 datas = [
     ("engine_manifest_assets", "engine_manifest_assets"),
@@ -11,7 +14,9 @@ datas = [
     ("presets.yaml", "."),
     ("engine_manifest.json", "."),
 ]
-datas += collect_data_files("pyopenjtalk")
+datas += collect_data_files(
+    "pyopenjtalk", includes=["**/open_jtalk_dic_utf_8-1.11/*.*"]
+)
 
 
 block_cipher = None
@@ -37,7 +42,7 @@ pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 exe = EXE(
     pyz,
     a.scripts,
-    # [("O", None, "OPTION")],
+    python_flag,
     exclude_binaries=True,
     name="run",
     debug=False,
