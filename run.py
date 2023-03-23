@@ -1021,7 +1021,7 @@ if __name__ == "__main__":
     manifest = manifestLoader.load_manifest()
     settings = setting_loader.load_setting_file()
     speakers = speaker_loader.load_speakers(
-        builtin_dir=root_dir / "resources" / "buitin_speaker"
+        builtin_dir=root_dir / "resources" / "builtin_speaker"
     )
 
     engine = HtsEngineApiEngine(speakers, manifest.default_sampling_rate)

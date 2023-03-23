@@ -5,4 +5,4 @@ builtin_dir = engine_root() / "resources/buitin_speaker"
 
 
 def load_speakers(builtin_dir=builtin_dir) -> speaker.Speakers:
-    return builtin_speaker.load_buitin_config(builtin_dir)
+    return builtin_speaker.load_builtin_config(builtin_dir)

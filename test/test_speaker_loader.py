@@ -11,7 +11,7 @@ TEST_SPEAKER = {
     "icon": Path("resources/buitin_speaker/mei/0/mei_normal.png"),
     "portrait": Path("resources/buitin_speaker/mei/portrait.png"),
     "samples": [Path("resources/buitin_speaker/mei/0/mei_normal_sample_001.wav")],
-    "config":{}
+    "config": {},
 }
 
 TEST_STYLE = {

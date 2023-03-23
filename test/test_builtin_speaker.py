@@ -4,12 +4,12 @@ import pytest
 
 from voicevox_engine.speaker_loader import builtin_speaker, speaker
 
-BUILTIN_DIR = Path("resources/buitin_speaker")
+BUILTIN_DIR = Path("resources/builtin_speaker")
 
 
 @pytest.fixture
 def speakers():
-    return builtin_speaker.load_buitin_config(BUILTIN_DIR)
+    return builtin_speaker.load_builtin_config(BUILTIN_DIR)
 
 
 def test_load_builtin_speaker(speakers: speaker.Speakers):

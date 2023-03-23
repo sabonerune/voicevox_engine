@@ -27,7 +27,7 @@ class BuiltinStyleConfigModel(BaseModel):
     config: VoiceConfig
 
 
-def load_buitin_config(builtin_dir: Path):
+def load_builtin_config(builtin_dir: Path):
     config_files = builtin_dir.glob("*/htsvoice-package.json")
     speakers: Dict[str, Speakers] = {}
     for i in config_files:
