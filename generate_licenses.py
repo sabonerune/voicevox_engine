@@ -45,6 +45,17 @@ def generate_licenses() -> List[License]:
         )
     )
 
+    # OpenJVox Engine
+    # FIXME: リリースしたらURLにする
+    licenses.append(
+        License(
+            name="OpenJVox Engine",
+            version=None,
+            license="LGPL license",
+            text=Path("LGPL_LICENSE").read_text(encoding="utf-8"),
+        )
+    )
+
     # VOICEVOX ENGINE
     with urllib.request.urlopen(
         "https://raw.githubusercontent.com/VOICEVOX/voicevox_engine/master/LGPL_LICENSE"
@@ -183,73 +194,6 @@ def generate_licenses() -> List[License]:
                 text=res.read().decode(),
             )
         )
-
-    # libogg
-    with urllib.request.urlopen(
-        "https://raw.githubusercontent.com/xiph/ogg/v1.3.2/COPYING"
-    ) as res:
-        licenses.append(
-            License(
-                name="libogg",
-                version="1.3.2",
-                license="BSD 3-clause license",
-                text=res.read().decode(),
-            )
-        )
-
-    # libvorbis
-    with urllib.request.urlopen(
-        "https://raw.githubusercontent.com/xiph/vorbis/v1.3.5/COPYING"
-    ) as res:
-        licenses.append(
-            License(
-                name="libvorbis",
-                version="1.3.5",
-                license="BSD 3-clause license",
-                text=res.read().decode(),
-            )
-        )
-
-    # libflac
-    with urllib.request.urlopen(
-        "https://raw.githubusercontent.com/xiph/flac/1.3.2/COPYING.Xiph"
-    ) as res:
-        licenses.append(
-            License(
-                name="FLAC",
-                version="1.3.2",
-                license="Xiph.org's BSD-like license",
-                text=res.read().decode(),
-            )
-        )
-
-    # cuda
-    # license text from CUDA 11.6.2
-    # https://developer.nvidia.com/cuda-11-6-2-download-archive?target_os=Windows&target_arch=x86_64&target_version=10&target_type=exe_local # noqa: B950
-    # https://developer.download.nvidia.com/compute/cuda/11.6.2/local_installers/cuda_11.6.2_511.65_windows.exe # noqa: B950
-    # cuda_11.6.2_511.65_windows.exe (cuda_documentation/Doc/EULA.txt)
-    licenses.append(
-        License(
-            name="CUDA Toolkit",
-            version="11.6.2",
-            license=None,
-            text=Path("docs/licenses/cuda/EULA.txt").read_text(encoding="utf8"),
-        )
-    )
-    # cudnn
-    # license text from
-    # cuDNN v8.4.1 (May 27th, 2022), for CUDA 11.x, cuDNN Library for Windows
-    # https://developer.nvidia.com/rdp/cudnn-archive # noqa: B950
-    # https://developer.download.nvidia.com/compute/redist/cudnn/v8.4.1/local_installers/11.6/cudnn-windows-x86_64-8.4.1.50_cuda11.6-archive.zip # noqa: B950
-    # cudnn-windows-x86_64-8.4.1.50_cuda11.6-archive.zip (cudnn-windows-x86_64-8.4.1.50_cuda11.6-archive/LICENSE) # noqa: B950
-    licenses.append(
-        License(
-            name="cuDNN",
-            version="8.4.1",
-            license=None,
-            text=Path("docs/licenses/cudnn/LICENSE").read_text(encoding="utf8"),
-        )
-    )
 
     return licenses
 
