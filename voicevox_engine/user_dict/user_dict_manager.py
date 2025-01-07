@@ -5,6 +5,7 @@ import sys
 import threading
 from collections.abc import Callable
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 from typing import Any, Final, TypeVar
 from uuid import UUID, uuid4
 
@@ -157,11 +158,14 @@ class UserDictionary:
             if not tmp_compiled_path.is_file():
                 raise RuntimeError("辞書のコンパイル時にエラーが発生しました。")
 
-            # コンパイル済み辞書の置き換え・読み込み
-            pyopenjtalk.unset_user_dict()
-            tmp_compiled_path.replace(compiled_dict_path)
-            if compiled_dict_path.is_file():
-                pyopenjtalk.set_user_dict(str(compiled_dict_path.resolve(strict=True)))
+            # コンパイル済み辞書の内容を一時ファイルに移し替える
+            with NamedTemporaryFile() as t:
+                t.write(tmp_compiled_path.read_bytes())
+                t.flush()
+
+                # コンパイル済み辞書の置き換え・読み込み
+                pyopenjtalk.unset_user_dict()
+                pyopenjtalk.set_user_dict(t.name)
 
         except Exception as e:
             print("Error: Failed to update dictionary.", file=sys.stderr)
