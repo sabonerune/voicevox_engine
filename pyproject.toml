@@ -39,6 +39,9 @@ use_parentheses = true
 [tool.typos.default.extend-words]
 datas = "datas" # PyInstaller's argument
 
+[tool.coverage.run]
+relative_files = true
+
 [tool.poetry]
 package-mode = false
 
