@@ -4,8 +4,6 @@ from argparse import ArgumentParser
 from pathlib import Path
 from shutil import copy2, copytree
 
-from PyInstaller.utils.hooks import collect_data_files
-
 parser = ArgumentParser()
 parser.add_argument("--libcore_path", type=Path)
 parser.add_argument("--libonnxruntime_path", type=Path)
@@ -24,14 +22,15 @@ core_model_dir_path: Path | None = options.core_model_dir_path
 if core_model_dir_path is not None and not core_model_dir_path.is_dir():
     raise Exception(f"core_model_dir_path: {core_model_dir_path} is not dir")
 
+excludedimports = ["voicevox_engine.dev"]
 
 a = Analysis(
     ["run.py"],
     pathex=[],
     binaries=[],
-    datas=collect_data_files("pyopenjtalk"),
+    datas=[],
     hiddenimports=[],
-    hookspath=[],
+    hookspath=["tools/pyinstaller_hooks"],
     hooksconfig={},
     runtime_hooks=[],
     excludes=[],
