@@ -1,14 +1,14 @@
 # -*- mode: python ; coding: utf-8 -*-
 # このファイルはPyInstallerによって自動生成されたもので、それをカスタマイズして使用しています。
-from PyInstaller.utils.hooks import collect_data_files
 import os
+
+excludedimports = ["voicevox_engine.dev"]
 
 datas = [
     ('resources', 'resources'),
     ('engine_manifest.json', '.'),
     ('licenses.json', '.'),
 ]
-datas += collect_data_files('pyopenjtalk')
 
 core_model_dir_path = os.environ.get('CORE_MODEL_DIR_PATH')
 if core_model_dir_path:
@@ -44,7 +44,7 @@ a = Analysis(
     binaries=[],
     datas=datas,
     hiddenimports=[],
-    hookspath=[],
+    hookspath=["tools/pyinstaller_hooks"],
     hooksconfig={},
     runtime_hooks=[],
     excludes=[],
