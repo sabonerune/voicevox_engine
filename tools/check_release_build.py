@@ -29,6 +29,7 @@ def test_release_build(
         assert manifest_file.is_file()
         manifest = json.loads(manifest_file.read_text(encoding="utf-8"))
         assert "manifest_version" in manifest
+        assert (dist_dir / manifest["command"]).exists()
 
     # 起動
     process = None
