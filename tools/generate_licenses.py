@@ -8,7 +8,10 @@ VOICEVOX ENGINE の実行に必要なライブラリのライセンス一覧を�
 
 import argparse
 import importlib.metadata
+import importlib.resources
 import json
+import os
+import platform
 import subprocess
 import sys
 import urllib.request
@@ -16,6 +19,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal, assert_never
 
+import soundfile
+import soxr
 from pydantic import TypeAdapter
 
 
@@ -146,7 +151,56 @@ def _validate_license_compliance(licenses: list[_License]) -> None:
 
 
 def _add_licenses_manually(licenses: list[_License]) -> None:
-    python_version = "3.11.9"
+    python_version = platform.python_version()
+    # ref: https://github.com/python/cpython/blob/v3.11.9/Lib/site.py#L426-L437
+    try:
+        stdlib_dir = Path(sys._stdlib_dir)  # type: ignore[attr-defined]
+    except AttributeError:
+        stdlib_dir = Path(os.__file__).parent
+    python_licenses_path = [
+        dir / filename
+        for dir in [stdlib_dir, stdlib_dir.parent]
+        for filename in ["LICENSE.txt", "LICENSE"]
+    ]
+    for i in python_licenses_path:
+        try:
+            python_license_text = i.read_text("utf8")
+            break
+        except OSError:
+            pass
+    else:
+        raise RuntimeError("Pythonのライセンスが見つかりません")
+
+    hts_voice_mei_license_traversable = (
+        importlib.resources.files("pyopenjtalk")
+        / "htsvoice"
+        / "LICENSE_mei_normal.htsvoice"
+    )
+
+    libsndfile_version = soundfile.__libsndfile_version__
+    libsndfile_binaries_traversable = (
+        importlib.resources.files("_soundfile_data") / "COPYING"
+    )
+
+    libsoxr_version = soxr.__libsoxr_version__
+    soxr_files = importlib.metadata.files("soxr")
+    if soxr_files is None:
+        raise RuntimeError("soxrのメタデータが見つかりません")
+
+    soxr_licenses_dir = "soxr-*.dist-info/licenses"
+    for soxr_file in soxr_files:
+        if soxr_file.match(f"{soxr_licenses_dir}/LICENSE-libsoxr.txt"):
+            libsoxr_license_text = i.read_text("utf-8")
+            break
+    else:
+        raise RuntimeError("libsoxrのライセンスが見つかりません")
+
+    for soxr_file in soxr_files:
+        if soxr_file.match(f"{soxr_licenses_dir}/LICENSE-PFFFT.txt"):
+            pffft_license_text = i.read_text("utf-8")
+            break
+    else:
+        raise RuntimeError("PFFFTのライセンスが見つかりません")
 
     licenses += [
         # https://sourceforge.net/projects/open-jtalk/files/Open%20JTalk/open_jtalk-1.11/
@@ -175,8 +229,8 @@ def _add_licenses_manually(licenses: list[_License]) -> None:
             package_name='HTS Voice "Mei"',
             package_version=None,
             license_name="Creative Commons Attribution 3.0 license",
-            license_text="https://raw.githubusercontent.com/r9y9/pyopenjtalk/master/pyopenjtalk/htsvoice/LICENSE_mei_normal.htsvoice",
-            license_text_type="remote_address",
+            license_text=hts_voice_mei_license_traversable.read_text("utf-8"),
+            license_text_type="raw",
         ),
         _License(
             package_name="VOICEVOX CORE",
@@ -217,15 +271,15 @@ def _add_licenses_manually(licenses: list[_License]) -> None:
             package_name="Python",
             package_version=python_version,
             license_name="Python Software Foundation License",
-            license_text=f"https://raw.githubusercontent.com/python/cpython/v{python_version}/LICENSE",
-            license_text_type="remote_address",
+            license_text=python_license_text,
+            license_text_type="raw",
         ),
         _License(
             package_name="libsndfile-binaries",
-            package_version="1.2.0",
+            package_version=libsndfile_version,
             license_name="LGPL-2.1 license",
-            license_text="https://raw.githubusercontent.com/bastibe/libsndfile-binaries/d9887ef926bb11cf1a2526be4ab6f9dc690234c0/COPYING",
-            license_text_type="remote_address",
+            license_text=libsndfile_binaries_traversable.read_text("utf-8"),
+            license_text_type="raw",
         ),
         _License(
             package_name="libogg",
@@ -299,17 +353,17 @@ def _add_licenses_manually(licenses: list[_License]) -> None:
         # Python-SoXR (`soxr`, https://github.com/dofuuz/python-soxr) が依存するライブラリ
         _License(
             package_name="libsoxr",
-            package_version=None,
+            package_version=libsoxr_version,
             license_name="LGPL-2.1 license",
-            license_text="https://raw.githubusercontent.com/dofuuz/soxr/master/LICENCE",
-            license_text_type="remote_address",
+            license_text=libsoxr_license_text,
+            license_text_type="raw",
         ),
         _License(
             package_name="PFFFT",
             package_version=None,
             license_name="BSD-like",
-            license_text="https://raw.githubusercontent.com/dofuuz/python-soxr/main/cmake/LICENSE-PFFFT.txt",
-            license_text_type="remote_address",
+            license_text=pffft_license_text,
+            license_text_type="raw",
         ),
         #
     ]
