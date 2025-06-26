@@ -22,8 +22,8 @@ def generate_portal_page_router(engine_name: EngineName) -> APIRouter:
                 <h1>{engine_name}</h1>
                 {engine_name} へようこそ！
                 <ul>
-                    <li><a href='/setting'>設定</a></li>
-                    <li><a href='/docs'>API ドキュメント</a></li>
+                    <li><a href='./setting'>設定</a></li>
+                    <li><a href='./docs'>API ドキュメント</a></li>
         </ul></body></html>
         """
 

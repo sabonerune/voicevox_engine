@@ -102,7 +102,7 @@
           <a
             download="VOICEVOXユーザー辞書.json"
             class="btn btn-primary mb-3"
-            href="/user_dict"
+            href="./user_dict"
             @click="showToastWithMessage('辞書をエクスポートしました。', 'success');"
             target="_blank"
             rel="noopener noreferrer"
@@ -198,7 +198,7 @@
               formData.append("cors_policy_mode", corsPolicyMode.value);
               formData.append("allow_origin", allowOrigin.value);
 
-              fetch("/setting", {
+              fetch("./setting", {
                 method: "POST",
                 mode: "same-origin",
                 body: formData,
@@ -224,7 +224,7 @@
                 const params = new URLSearchParams({
                   override: true, // 重複するエントリを上書きする
                 });
-                const response = await fetch(`/import_user_dict?${params}`, {
+                const response = await fetch(`./import_user_dict?${params}`, {
                   method: "POST",
                   mode: "same-origin",
                   headers: { "Content-Type": "application/json" },

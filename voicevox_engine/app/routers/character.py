@@ -20,7 +20,29 @@ RESOURCE_ENDPOINT = "_resources"
 
 
 async def _get_resource_baseurl(request: Request) -> str:
-    return f"{request.url.scheme}://{request.url.netloc}/{RESOURCE_ENDPOINT}"
+    scheme = request.url.scheme
+    host = request.url.netloc
+    # TODO: デフォルトは無効にして有効化できるようにする
+    if request.headers.get("Forwarded") is not None:
+        # リバースプロキシを通している場合、ForwardedヘッダからURLを取得する
+        forwarded = request.headers["Forwarded"]
+        for item in forwarded.split(";"):
+            if item.startswith("host="):
+                host = item.split("=")[1]
+                if host.startswith('"[') and host.endswith(']"'):
+                    # IPv6アドレスの場合、引用符を除去する
+                    host = host[1:-1]
+            elif item.startswith("proto="):
+                scheme = item.split("=")[1]
+    else:
+        if request.headers.get("X-Forwarded-Proto") is not None:
+            # リバースプロキシを通している場合、X-Forwarded-Protoヘッダからスキームを取得する
+            scheme = request.headers["X-Forwarded-Proto"]
+        if request.headers.get("X-Forwarded-Host") is not None:
+            # リバースプロキシを通している場合、X-Forwarded-Hostヘッダからホストを取得する
+            host = request.headers["X-Forwarded-Host"]
+    # TODO: ここで取得したスキームとホストが正しいかどうかの検証を行う
+    return f"{scheme}://{host}/{RESOURCE_ENDPOINT}"
 
 
 def _characters_to_speakers(characters: list[Character]) -> list[Speaker]:
