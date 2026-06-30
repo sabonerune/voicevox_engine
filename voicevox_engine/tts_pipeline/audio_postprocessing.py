@@ -1,8 +1,10 @@
 """音声波形を加工する。"""
 
+from collections.abc import Generator
+
 import numpy as np
 from numpy.typing import NDArray
-from soxr import resample
+from soxr import ResampleStream, resample
 
 from ..model import AudioQuery
 from .model import (
@@ -45,3 +47,70 @@ def _apply_output_stereo(
     if query.outputStereo:
         wave = np.array([wave, wave]).T
     return wave
+
+
+def raw_wave_stream_to_output_wave(
+    query: AudioQuery | FrameAudioQuery,
+    frame_length: int,
+    stream: Generator[NDArray[np.float32]],
+    sr_wave: int,
+) -> tuple[int, Generator[NDArray[np.float32]]]:
+    """生音声波形に音声合成用のクエリを適用して出力音声波形を生成する(ストリーミング用)"""
+    wave_length = frame_length
+    output_rate = query.outputSamplingRate
+
+    if sr_wave != output_rate:
+        wave_length = round(frame_length * output_rate / sr_wave)
+
+    total_wave_length = wave_length
+    if query.outputStereo:
+        total_wave_length *= 2
+
+    def volume_scale(
+        stream: Generator[NDArray[np.float32]],
+    ) -> Generator[NDArray[np.float32]]:
+        for wave in stream:
+            yield _apply_volume_scale(wave, query)
+
+    def resample(
+        stream: Generator[NDArray[np.float32]],
+    ) -> Generator[NDArray[np.float32]]:
+        # サンプリングレート一致のときはスルー
+        if sr_wave == query.outputSamplingRate:
+            yield from stream
+            return
+        # ResampleStreamには最後の入力を明示する必要があるので予め取り出しておく
+        buffer = next(stream)
+        resampler = ResampleStream(
+            sr_wave, query.outputSamplingRate, buffer.ndim, buffer.dtype
+        )
+
+        remmend_length = wave_length
+        for raw_wave in stream:
+            chunk = resampler.resample_chunk(buffer)
+            chunk_length = len(chunk)
+            if chunk_length >= remmend_length:
+                # 計算したリサンプリング後の長さが実際より大幅に短かった場合
+                yield chunk[0:remmend_length]
+                return
+            remmend_length -= chunk_length
+            buffer = raw_wave
+            yield chunk
+
+        last_chunk = resampler.resample_chunk(buffer, True)
+        last_chunk_length = len(last_chunk)
+        # 事前に計算したリサンプリング後の長さに誤差があった場合、事前に計算した長さに合わせる
+        if last_chunk_length < remmend_length:
+            yield np.pad(last_chunk, (0, remmend_length - last_chunk_length), "edge")
+        elif last_chunk_length > remmend_length:
+            yield last_chunk[0:remmend_length]
+        else:
+            yield last_chunk
+
+    def output_stereo(
+        stream: Generator[NDArray[np.float32]],
+    ) -> Generator[NDArray[np.float32]]:
+        for wave in stream:
+            yield _apply_output_stereo(wave, query)
+
+    return total_wave_length, output_stereo(resample(volume_scale(stream)))

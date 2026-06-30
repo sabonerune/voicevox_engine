@@ -437,16 +437,6 @@ def generate_tts_pipeline_router(
         ] = True,
         core_version: str | SkipJsonSchema[None] = None,
     ) -> StreamingResponse:
-        if query.outputSamplingRate != 24000:
-            raise HTTPException(
-                status_code=422,
-                detail="24kHz以外のサンプリングレートはサポートされていません",
-            )
-        if query.outputStereo:
-            raise HTTPException(
-                status_code=422,
-                detail="ステレオ出力はサポートされていません",
-            )
         version = core_version or LATEST_VERSION
         engine = tts_engines.get_tts_engine(version)
         wave_length, wave_generator = engine.synthesize_wave_stream(
@@ -456,11 +446,15 @@ def generate_tts_pipeline_router(
             segment_length=segment_length,
             enable_interrogative_upspeak=enable_interrogative_upspeak,
         )
-        wavfile_generator = encode_wave_stream_as_wav(
+        file_size, wavfile_generator = encode_wave_stream_as_wav(
             wave_length, wave_generator, query.outputSamplingRate, query.outputStereo
         )
 
-        return StreamingResponse(wavfile_generator, media_type="audio/wav")
+        return StreamingResponse(
+            wavfile_generator,
+            headers={"content-length": str(file_size)},
+            media_type="audio/wav",
+        )
 
     @router.post(
         "/sing_frame_audio_query",

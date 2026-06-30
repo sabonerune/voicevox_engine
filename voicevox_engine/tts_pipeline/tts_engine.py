@@ -14,7 +14,10 @@ from ..core.core_wrapper import CoreWrapper
 from ..metas.metas import StyleId
 from ..model import AudioQuery
 from ..utility.core_version_utility import MOCK_CORE_VERSION, get_latest_version
-from .audio_postprocessing import raw_wave_to_output_wave
+from .audio_postprocessing import (
+    raw_wave_stream_to_output_wave,
+    raw_wave_to_output_wave,
+)
 from .kana_converter import parse_kana
 from .model import (
     AccentPhrase,
@@ -414,6 +417,7 @@ class TTSEngine:
         assert len(audio_feature) - 2 * margin_width > 0, (
             "start_offsetが生成音声の長さを超えています"
         )
+        frame_length = (len(audio_feature) - 2 * margin_width) * 256
 
         def wave_generator() -> Generator[NDArray[np.float32], None, None]:
             # render_[start|end]: マージンを除いた有効部分の開始/終了位置
@@ -434,10 +438,11 @@ class TTSEngine:
                 raw_wave = raw_wave_with_margin[
                     margin_width * 256 : -margin_width * 256
                 ]
-                wave = raw_wave_to_output_wave(query, raw_wave, sr_raw_wave)
-                yield wave
+                yield raw_wave
 
-        return (len(audio_feature) - 2 * margin_width) * 256, wave_generator()
+        return raw_wave_stream_to_output_wave(
+            query, frame_length, wave_generator(), self._core.default_sampling_rate
+        )
 
     def initialize_synthesis(self, style_id: StyleId, skip_reinit: bool) -> None:
         """指定されたスタイル ID に関する合成機能を初期化する。既に初期化されていた場合は引数に応じて再初期化する。"""
