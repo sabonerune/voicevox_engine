@@ -75,6 +75,11 @@ jobs:
             onnxruntime_device: cuda
             zlib_url: http://www.winimage.com/zLibDll/zlib123dllx64.zip
             target: windows-nvidia
+          # Windows CPU (arm64 arch)
+          - os: windows-11-arm
+            architecture: "arm64"
+            onnxruntime_device: cpu
+            target: windows-cpu-arm64
           # Mac CPU (x64 arch)
           - os: macos-15-intel
             architecture: "x64"
@@ -166,10 +171,6 @@ jobs:
           key: ${{ steps.zlib-cache-restore.outputs.cache-primary-key }}
           path: download/zlib
 
-      - name: <Setup> Set up MSVC
-        if: runner.os == 'Windows'
-        uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1.13.0
-
       - name: <Setup> Prepare Python Runtime / Python Dependencies
         uses: ./.github/actions/prepare_python
         with:
@@ -233,10 +234,11 @@ jobs:
 
       - name: <Setup> Download Downloader
         if: |
-          steps.voicevox-core-cache-restore.outputs.cache-hit != 'true' ||
+          (steps.voicevox-core-cache-restore.outputs.cache-hit != 'true' ||
             steps.onnxruntime-cache-restore.outputs.cache-hit != 'true' ||
             steps.additional-libraries-cache-restore.outputs.cache-hit != 'true' ||
-            steps.models-cache-restore.outputs.cache-hit != 'true'
+            steps.models-cache-restore.outputs.cache-hit != 'true') &&
+            !(runner.os == 'Windows' && runner.arch == 'ARM64')
         id: download-downloader
         run: |
           case "$RUNNER_OS,$RUNNER_ARCH" in
@@ -265,7 +267,7 @@ jobs:
           echo "downloader-path=$downloader_path" >> "$GITHUB_OUTPUT"
 
       - name: <Setup> Download CORE
-        if: steps.voicevox-core-cache-restore.outputs.cache-hit != 'true'
+        if: steps.voicevox-core-cache-restore.outputs.cache-hit != 'true' && !(runner.os == 'Windows' && runner.arch == 'ARM64')
         run: |
           ${{ steps.download-downloader.outputs.downloader-path }} \
             --only c-api \
@@ -282,7 +284,7 @@ jobs:
           path: download/core/c_api
 
       - name: <Setup> Download ONNX Runtime
-        if: steps.onnxruntime-cache-restore.outputs.cache-hit != 'true'
+        if: steps.onnxruntime-cache-restore.outputs.cache-hit != 'true' && !(runner.os == 'Windows' && runner.arch == 'ARM64')
         run: |
           # NOTE: `"y"`を流し込んで利用規約に同意している
           ${{ steps.download-downloader.outputs.downloader-path }} \
@@ -415,6 +417,11 @@ jobs:
           else
             LIBCORE_PATH=download/core/c_api/lib/libvoicevox_core.so
             LIBONNXRUNTIME_PATH=download/core/onnxruntime/lib/libvoicevox_onnxruntime.so
+          fi
+
+          if [ "$RUNNER_OS,$RUNNER_ARCH" =  "Windows,ARM64" ]; then
+            uv run pyinstaller --noconfirm run.spec -- --core_model_dir_path="download/core/models/vvms"
+            exit
           fi
 
           uv run pyinstaller --noconfirm run.spec -- \
